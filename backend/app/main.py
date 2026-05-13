@@ -8,6 +8,7 @@ from app.models.usuario_model import Usuario
 from app.models.producto_model import Producto
 from app.models.venta_model import Venta
 from app.models.detalle_venta_model import DetalleVenta
+from app.routes.productos_router import router as producto_router
 
 # =========================
 # CREAR TABLAS
@@ -26,6 +27,7 @@ app = FastAPI(
 # =========================
 # RUTA PRINCIPAL
 # =========================
+app.include_router(producto_router)
 @app.get("/")
 def home():
     return {
