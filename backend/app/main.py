@@ -1,5 +1,5 @@
 from fastapi import FastAPI
-
+from fastapi.middleware.cors import CORSMiddleware
 # Base de datos
 from app.database import engine, Base
 
@@ -25,6 +25,21 @@ app = FastAPI(
     title="API Tienda FullStack",
     description="Sistema de ventas con FastAPI y MySQL",
     version="1.0.0"
+)
+#============================
+#Habilitando CORS en FastAPI.
+#===========================
+
+app.add_middleware(
+    CORSMiddleware,
+
+    allow_origins=["*"],
+
+    allow_credentials=True,
+
+    allow_methods=["*"],
+
+    allow_headers=["*"],
 )
 
 # =========================
