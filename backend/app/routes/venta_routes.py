@@ -8,6 +8,7 @@ from app.models.detalle_venta_model import DetalleVenta
 from app.models.producto_model import Producto
 
 from app.schemas.venta_schema import VentaCreate
+from app.utils.dependencies import get_current_user
 
 router = APIRouter(
     prefix="/ventas",
@@ -33,7 +34,8 @@ def get_db():
 @router.post("/")
 def crear_venta(
     venta: VentaCreate,
-    db: Session = Depends(get_db)
+    db: Session = Depends(get_db),
+    current_user: str = Depends(get_current_user)
 ):
 
     nueva_venta = Venta()
