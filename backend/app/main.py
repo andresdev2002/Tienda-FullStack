@@ -10,6 +10,7 @@ from app.models.venta_model import Venta
 from app.models.detalle_venta_model import DetalleVenta
 from app.routes.productos_router import router as producto_router
 from app.routes.auth_routes import router as auth_router
+from app.routes.venta_routes import router as venta_router
 
 # =========================
 # CREAR TABLAS
@@ -36,3 +37,4 @@ def home():
     }
 
 app.include_router(auth_router)
+app.include_router(venta_router)
