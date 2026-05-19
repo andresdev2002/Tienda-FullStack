@@ -6,39 +6,32 @@ from pydantic import BaseModel
 
 
 # =========================================
-# BASE USUARIO
+# BASE ROL
 # =========================================
 
-class UsuarioBase(BaseModel):
+class RolBase(BaseModel):
 
-    # Username usuario
-    username: str
-
-
-# =========================================
-# CREAR USUARIO
-# =========================================
-
-class UsuarioCreate(UsuarioBase):
-
-    # Password usuario
-    password: str
-
-    # Rol usuario
-    rol_id: int
+    # Nombre del rol
+    nombre: str
 
 
 # =========================================
-# RESPUESTA USUARIO
+# CREAR ROL
 # =========================================
 
-class UsuarioResponse(UsuarioBase):
+class RolCreate(RolBase):
 
-    # ID usuario
-    id_usuario: int
+    pass
+
+
+# =========================================
+# RESPUESTA ROL
+# =========================================
+
+class RolResponse(RolBase):
 
     # ID rol
-    rol_id: int
+    id_rol: int
 
     class Config:
 
