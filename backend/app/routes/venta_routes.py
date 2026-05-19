@@ -1,44 +1,118 @@
-from fastapi import APIRouter, Depends, HTTPException
+# =========================================
+# FASTAPI
+# =========================================
+
+from fastapi import APIRouter
+from fastapi import Depends
+from fastapi import HTTPException
+
+# =========================================
+# SQLALCHEMY
+# =========================================
+
 from sqlalchemy.orm import Session
+
+# =========================================
+# DATABASE
+# =========================================
 
 from app.database import SessionLocal
 
+# =========================================
+# MODELOS
+# =========================================
+
 from app.models.venta_model import Venta
+
 from app.models.detalle_venta_model import DetalleVenta
+
 from app.models.producto_model import Producto
 
+from app.models.movimiento_inventario_model import (
+    MovimientoInventario
+)
+
+# =========================================
+# SCHEMAS
+# =========================================
+
 from app.schemas.venta_schema import VentaCreate
-from app.utils.dependencies import get_current_user
+
+# =========================================
+# ROUTER
+# =========================================
 
 router = APIRouter(
     prefix="/ventas",
     tags=["Ventas"]
 )
 
-# =========================
-# DB
-# =========================
+# =========================================
+# DATABASE SESSION
+# =========================================
+
 def get_db():
 
     db = SessionLocal()
 
     try:
+
         yield db
 
     finally:
+
         db.close()
 
-# =========================
+# =========================================
 # CREAR VENTA
-# =========================
+# =========================================
+
 @router.post("/")
 def crear_venta(
     venta: VentaCreate,
-    db: Session = Depends(get_db),
-    current_user: str = Depends(get_current_user)
+    db: Session = Depends(get_db)
 ):
 
-    nueva_venta = Venta()
+    total_venta = 0
+
+    # =====================================
+    # VALIDAR STOCK
+    # =====================================
+
+    for item in venta.detalles:
+
+        producto = db.query(
+            Producto
+        ).filter(
+            Producto.id_producto == item.producto_id
+        ).first()
+
+        if not producto:
+
+            raise HTTPException(
+                status_code=404,
+                detail=f"Producto {item.producto_id} no encontrado"
+            )
+
+        if producto.stock_actual < item.cantidad:
+
+            raise HTTPException(
+                status_code=400,
+                detail=f"Stock insuficiente para {producto.nombre}"
+            )
+
+    # =====================================
+    # CREAR VENTA
+    # =====================================
+
+    nueva_venta = Venta(
+
+        cliente_id=venta.cliente_id,
+
+        usuario_id=venta.usuario_id,
+
+        total=0
+    )
 
     db.add(nueva_venta)
 
@@ -46,46 +120,77 @@ def crear_venta(
 
     db.refresh(nueva_venta)
 
-    for item in venta.productos:
+    # =====================================
+    # CREAR DETALLES
+    # =====================================
 
-        producto = db.query(Producto).filter(
-            Producto.id == item.producto_id
+    for item in venta.detalles:
+
+        producto = db.query(
+            Producto
+        ).filter(
+            Producto.id_producto == item.producto_id
         ).first()
 
-        if not producto:
+        subtotal = (
+            producto.precio_venta * item.cantidad
+        )
 
-            raise HTTPException(
-                status_code=404,
-                detail=f"Producto {item.producto_id} no existe"
-            )
+        total_venta += subtotal
 
-        # =========================
-        # VALIDAR STOCK
-        # =========================
-        if producto.stock < item.cantidad:
-
-            raise HTTPException(
-                status_code=400,
-                detail=f"Stock insuficiente para {producto.nombre}"
-            )
-
-        # =========================
+        # =================================
         # DESCONTAR STOCK
-        # =========================
-        producto.stock -= item.cantidad
+        # =================================
+
+        producto.stock_actual -= item.cantidad
+
+        # =================================
+        # DETALLE VENTA
+        # =================================
 
         detalle = DetalleVenta(
-            venta_id=nueva_venta.id,
-            producto_id=producto.id,
+
+            venta_id=nueva_venta.id_venta,
+
+            producto_id=item.producto_id,
+
             cantidad=item.cantidad,
-            precio=producto.precio
+
+            precio_unitario=producto.precio_venta,
+
+            subtotal=subtotal
         )
 
         db.add(detalle)
 
+        # =================================
+        # MOVIMIENTO INVENTARIO
+        # =================================
+
+        movimiento = MovimientoInventario(
+
+            producto_id=producto.id_producto,
+
+            usuario_id=venta.usuario_id,
+
+            tipo_movimiento="SALIDA",
+
+            cantidad=item.cantidad,
+
+            observacion=f"Venta #{nueva_venta.id_venta}"
+        )
+
+        db.add(movimiento)
+
+    # =====================================
+    # ACTUALIZAR TOTAL
+    # =====================================
+
+    nueva_venta.total = total_venta
+
     db.commit()
 
     return {
-        "message": "Venta registrada correctamente",
-        "venta_id": nueva_venta.id
+        "message": "Venta realizada correctamente",
+        "total": total_venta
     }

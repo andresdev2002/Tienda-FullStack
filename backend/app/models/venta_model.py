@@ -11,6 +11,10 @@ from sqlalchemy.orm import relationship
 
 from app.database import Base
 
+# IMPORTS MODELOS
+from app.models.usuario_model import Usuario
+from app.models.cliente_model import Cliente
+
 
 class Venta(Base):
 
