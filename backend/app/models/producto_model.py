@@ -3,7 +3,6 @@ from sqlalchemy import Integer
 from sqlalchemy import String
 from sqlalchemy import Text
 from sqlalchemy import DECIMAL
-from sqlalchemy import Boolean
 from sqlalchemy import ForeignKey
 from sqlalchemy import TIMESTAMP
 from sqlalchemy.sql import func
@@ -78,9 +77,10 @@ class Producto(Base):
         String(20)
     )
 
+    # ← Cambiado de Boolean a String
     estado = Column(
-        Boolean,
-        default=True
+        String(20),
+        default="ACTIVO"
     )
 
     imagen_url = Column(

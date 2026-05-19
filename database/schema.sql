@@ -100,7 +100,7 @@ CREATE TABLE productos (
 
     unidad_medida VARCHAR(20),
 
-    estado BOOLEAN DEFAULT TRUE,
+    estado VARCHAR(20) DEFAULT 'ACTIVO',
 
     imagen_url VARCHAR(255),
 

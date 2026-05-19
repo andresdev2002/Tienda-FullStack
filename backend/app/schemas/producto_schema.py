@@ -1,12 +1,16 @@
-# =========================================
-# PYDANTIC
-# =========================================
-
 from pydantic import BaseModel
-
 from decimal import Decimal
-
 from typing import Optional
+from enum import Enum
+
+
+# =========================================
+# ENUM ESTADO
+# =========================================
+
+class EstadoProducto(str, Enum):
+    ACTIVO = "ACTIVO"
+    INACTIVO = "INACTIVO"
 
 
 # =========================================
@@ -15,46 +19,22 @@ from typing import Optional
 
 class ProductoBase(BaseModel):
 
-    # Nombre producto
     nombre: str
-
-    # Descripción producto
     descripcion: Optional[str] = None
-
-    # Categoría relacionada
     categoria_id: int
-
-    # Proveedor relacionado
     proveedor_id: int
-
-    # SKU producto
     sku: Optional[str] = None
-
-    # Código barras
     codigo_barras: Optional[str] = None
-
-    # Precio compra
     precio_compra: Decimal
-
-    # Precio venta
     precio_venta: Decimal
-
-    # Stock actual
     stock_actual: int
-
-    # Stock mínimo
     stock_minimo: int
-
-    # Stock máximo
     stock_maximo: int
-
-    # Unidad medida
     unidad_medida: Optional[str] = None
 
-    # Estado producto
-    estado: bool = True
+    # ← Cambiado de bool a EstadoProducto
+    estado: EstadoProducto = EstadoProducto.ACTIVO
 
-    # Imagen producto
     imagen_url: Optional[str] = None
 
 
@@ -63,7 +43,6 @@ class ProductoBase(BaseModel):
 # =========================================
 
 class ProductoCreate(ProductoBase):
-
     pass
 
 
@@ -73,10 +52,7 @@ class ProductoCreate(ProductoBase):
 
 class ProductoResponse(ProductoBase):
 
-    # ID producto
     id_producto: int
 
     class Config:
-
-        # ORM → JSON
         from_attributes = True
