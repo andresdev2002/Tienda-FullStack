@@ -6,41 +6,34 @@ from pydantic import BaseModel
 
 
 # =========================================
-# BASE USUARIO
+# BASE CATEGORIA
 # =========================================
 
-class UsuarioBase(BaseModel):
+class CategoriaBase(BaseModel):
 
-    # Username usuario
-    username: str
-
-
-# =========================================
-# CREAR USUARIO
-# =========================================
-
-class UsuarioCreate(UsuarioBase):
-
-    # Password usuario
-    password: str
-
-    # Rol usuario
-    rol_id: int
+    # Nombre categoría
+    nombre: str
 
 
 # =========================================
-# RESPUESTA USUARIO
+# CREAR CATEGORIA
 # =========================================
 
-class UsuarioResponse(UsuarioBase):
+class CategoriaCreate(CategoriaBase):
 
-    # ID usuario
-    id_usuario: int
+    pass
 
-    # ID rol
-    rol_id: int
+
+# =========================================
+# RESPUESTA CATEGORIA
+# =========================================
+
+class CategoriaResponse(CategoriaBase):
+
+    # ID categoría
+    id_categoria: int
 
     class Config:
 
-        # Convierte ORM → JSON
+        # ORM → JSON
         from_attributes = True
