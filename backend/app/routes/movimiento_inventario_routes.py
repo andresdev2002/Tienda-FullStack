@@ -72,7 +72,7 @@ def get_db():
 )
 def crear_movimiento(
 
-    # Datos recibidos desde Swagger
+    # Datos enviados desde Swagger
     datos: MovimientoInventarioCreate,
 
     # Sesión de base de datos
@@ -80,39 +80,6 @@ def crear_movimiento(
 
 ):
 
-    # =========================================
-    # CREAR MOVIMIENTO
-    # =========================================
-
-    nuevo_movimiento = MovimientoInventario(
-
-        # Producto relacionado
-        producto_id=datos.producto_id,
-
-        # Usuario relacionado
-        usuario_id=datos.usuario_id,
-
-        # Tipo de movimiento
-        tipo_movimiento=datos.tipo_movimiento,
-
-        # Cantidad movida
-        cantidad=datos.cantidad,
-
-        # Observación
-        observacion=datos.observacion
-    )
-
-    # Guardar en memoria
-    db.add(nuevo_movimiento)
-
-    # Guardar en base de datos
-    db.commit()
-
-    # Refrescar datos
-    db.refresh(nuevo_movimiento)
-
-    # Retornar movimiento
-    return nuevo_movimiento
     # =====================================
     # BUSCAR PRODUCTO
     # =====================================
@@ -120,9 +87,10 @@ def crear_movimiento(
     producto = db.query(
         Producto
     ).filter(
-        Producto.id_producto == movimiento.producto_id
+        Producto.id_producto == datos.producto_id
     ).first()
 
+    # Validar existencia
     if not producto:
 
         raise HTTPException(
@@ -134,24 +102,46 @@ def crear_movimiento(
     # ENTRADA INVENTARIO
     # =====================================
 
-    if movimiento.tipo_movimiento == "ENTRADA":
+    if datos.tipo_movimiento == "ENTRADA":
 
-        producto.stock_actual += movimiento.cantidad
+        producto.stock_actual += datos.cantidad
 
     # =====================================
     # SALIDA INVENTARIO
     # =====================================
 
-    elif movimiento.tipo_movimiento == "SALIDA":
+    elif datos.tipo_movimiento == "SALIDA":
 
-        if producto.stock_actual < movimiento.cantidad:
+        # Validar stock
+        if producto.stock_actual < datos.cantidad:
 
             raise HTTPException(
                 status_code=400,
                 detail="Stock insuficiente"
             )
 
-        producto.stock_actual -= movimiento.cantidad
+        # Descontar stock
+        producto.stock_actual -= datos.cantidad
+
+    # =====================================
+    # AJUSTE INVENTARIO
+    # =====================================
+
+    elif datos.tipo_movimiento == "AJUSTE":
+
+        producto.stock_actual = datos.cantidad
+
+    # =====================================
+    # DEVOLUCION
+    # =====================================
+
+    elif datos.tipo_movimiento == "DEVOLUCION":
+
+        producto.stock_actual += datos.cantidad
+
+    # =====================================
+    # TIPO INVÁLIDO
+    # =====================================
 
     else:
 
@@ -166,22 +156,30 @@ def crear_movimiento(
 
     nuevo_movimiento = MovimientoInventario(
 
-        producto_id=movimiento.producto_id,
+        producto_id=datos.producto_id,
 
-        usuario_id=movimiento.usuario_id,
+        usuario_id=datos.usuario_id,
 
-        tipo_movimiento=movimiento.tipo_movimiento,
+        tipo_movimiento=datos.tipo_movimiento,
 
-        cantidad=movimiento.cantidad,
+        cantidad=datos.cantidad,
 
-        observacion=movimiento.observacion
+        observacion=datos.observacion
     )
+
+    # =====================================
+    # GUARDAR EN BASE DE DATOS
+    # =====================================
 
     db.add(nuevo_movimiento)
 
     db.commit()
 
     db.refresh(nuevo_movimiento)
+
+    # =====================================
+    # RESPUESTA
+    # =====================================
 
     return nuevo_movimiento
 
@@ -194,7 +192,9 @@ def crear_movimiento(
     response_model=list[MovimientoInventarioResponse]
 )
 def listar_movimientos(
+
     db: Session = Depends(get_db)
+
 ):
 
     movimientos = db.query(
