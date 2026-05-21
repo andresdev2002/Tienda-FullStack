@@ -4,59 +4,34 @@
 
 from pydantic import BaseModel
 
-from datetime import datetime
+# =========================================
+# TYPING
+# =========================================
 
 from typing import List
 
-# =========================================
-# SCHEMAS
-# =========================================
-
-from app.schemas.detalle_venta_schema import (
-    DetalleVentaCreate,
-    DetalleVentaResponse
-)
 
 # =========================================
-# CREAR VENTA
+# DETALLE VENTA
+# =========================================
+
+class DetalleVentaCreate(BaseModel):
+
+    producto_id: int
+
+    cantidad: int
+
+
+# =========================================
+# VENTA
 # =========================================
 
 class VentaCreate(BaseModel):
 
-    # Cliente relacionado
-    cliente_id: int
-
-    # Usuario responsable
     usuario_id: int
 
-    # Productos vendidos
+    cliente_id: int
+
+    metodo_pago: str
+
     detalles: List[DetalleVentaCreate]
-
-# =========================================
-# RESPUESTA VENTA
-# =========================================
-
-class VentaResponse(BaseModel):
-
-    # ID venta
-    id_venta: int
-
-    # Cliente relacionado
-    cliente_id: int
-
-    # Usuario responsable
-    usuario_id: int
-
-    # Total venta
-    total: float
-
-    # Fecha venta
-    fecha_venta: datetime
-
-    # Detalles venta
-    detalles: List[DetalleVentaResponse]
-
-    class Config:
-
-        # ORM → JSON
-        from_attributes = True

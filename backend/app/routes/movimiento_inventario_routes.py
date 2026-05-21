@@ -71,10 +71,48 @@ def get_db():
     response_model=MovimientoInventarioResponse
 )
 def crear_movimiento(
-    movimiento: MovimientoInventarioCreate,
+
+    # Datos recibidos desde Swagger
+    datos: MovimientoInventarioCreate,
+
+    # Sesión de base de datos
     db: Session = Depends(get_db)
+
 ):
 
+    # =========================================
+    # CREAR MOVIMIENTO
+    # =========================================
+
+    nuevo_movimiento = MovimientoInventario(
+
+        # Producto relacionado
+        producto_id=datos.producto_id,
+
+        # Usuario relacionado
+        usuario_id=datos.usuario_id,
+
+        # Tipo de movimiento
+        tipo_movimiento=datos.tipo_movimiento,
+
+        # Cantidad movida
+        cantidad=datos.cantidad,
+
+        # Observación
+        observacion=datos.observacion
+    )
+
+    # Guardar en memoria
+    db.add(nuevo_movimiento)
+
+    # Guardar en base de datos
+    db.commit()
+
+    # Refrescar datos
+    db.refresh(nuevo_movimiento)
+
+    # Retornar movimiento
+    return nuevo_movimiento
     # =====================================
     # BUSCAR PRODUCTO
     # =====================================
