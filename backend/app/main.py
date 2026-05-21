@@ -1,57 +1,48 @@
 from fastapi import FastAPI
-from fastapi.middleware.cors import CORSMiddleware
-# Base de datos
-from app.database import engine, Base
 
-# Importar modelos
-from app.models.usuario_model import Usuario
-from app.models.producto_model import Producto
-from app.models.venta_model import Venta
-from app.models.detalle_venta_model import DetalleVenta
-from app.routes.productos_router import router as producto_router
-from app.routes.auth_routes import router as auth_router
+from app.database import engine
+from app.database import Base
+from app.routes.categoria_routes import router as categoria_router
+from app.routes.productos_routes import router as productos_router
+from app.routes.proveedor_routes import router as proveedor_router
 from app.routes.venta_routes import router as venta_router
-from app.routes.reporte_routes import router as reporte_router
+from app.routes.movimiento_inventario_routes import (
+    router as movimiento_router
+)
+from app.models import *
 
-# =========================
+
+# =========================================
 # CREAR TABLAS
-# =========================
-Base.metadata.create_all(bind=engine)
+# =========================================
 
-# =========================
-# INICIAR FASTAPI
-# =========================
+Base.metadata.create_all(
+    bind=engine
+)
+
+
+# =========================================
+# APP
+# =========================================
+
 app = FastAPI(
-    title="API Tienda FullStack",
-    description="Sistema de ventas con FastAPI y MySQL",
-    version="1.0.0"
-)
-#============================
-#Habilitando CORS en FastAPI.
-#===========================
-
-app.add_middleware(
-    CORSMiddleware,
-
-    allow_origins=["*"],
-
-    allow_credentials=True,
-
-    allow_methods=["*"],
-
-    allow_headers=["*"],
+    title="API Inventario Profesional"
 )
 
-# =========================
-# RUTA PRINCIPAL
-# =========================
-app.include_router(producto_router)
+
+# =========================================
+# HOME
+# =========================================
+
 @app.get("/")
 def home():
+
     return {
-        "message": "Backend funcionando correctamente"
+        "message": "API funcionando correctamente"
     }
 
-app.include_router(auth_router)
+app.include_router(categoria_router)
+app.include_router(productos_router)
+app.include_router(proveedor_router)
 app.include_router(venta_router)
-app.include_router(reporte_router)
+app.include_router(movimiento_router)

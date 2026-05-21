@@ -1,24 +1,43 @@
-from pydantic import BaseModel, Field
+# =========================================
+# PYDANTIC
+# =========================================
 
-# =========================
-# DETALLE DE PRODUCTOS
-# =========================
+from pydantic import BaseModel
+
+# =========================================
+# CREAR DETALLE VENTA
+# =========================================
+
 class DetalleVentaCreate(BaseModel):
-    producto_id: int
-    
-    cantidad: int = Field(
-        gt=0,
-        description="La cantidad debe ser mayor a 0"
-    )
 
-# =========================
-# RESPUESTA DETALLE
-# =========================
-class DetalleVentaResponse(BaseModel):
-    id: int
+    # Producto relacionado
     producto_id: int
+
+    # Cantidad vendida
     cantidad: int
-    precio: float
+
+# =========================================
+# RESPUESTA DETALLE VENTA
+# =========================================
+
+class DetalleVentaResponse(BaseModel):
+
+    # ID detalle
+    id_detalle: int
+
+    # Producto relacionado
+    producto_id: int
+
+    # Cantidad vendida
+    cantidad: int
+
+    # Precio unitario
+    precio_unitario: float
+
+    # Subtotal
+    subtotal: float
 
     class Config:
+
+        # ORM → JSON
         from_attributes = True

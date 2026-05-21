@@ -4,34 +4,36 @@
 
 from pydantic import BaseModel
 
-# =========================================
-# TYPING
-# =========================================
-
-from typing import List
-
 
 # =========================================
-# DETALLE VENTA
+# BASE ROL
 # =========================================
 
-class DetalleVentaCreate(BaseModel):
+class RolBase(BaseModel):
 
-    producto_id: int
-
-    cantidad: int
+    # Nombre del rol
+    nombre: str
 
 
 # =========================================
-# VENTA
+# CREAR ROL
 # =========================================
 
-class VentaCreate(BaseModel):
+class RolCreate(RolBase):
 
-    usuario_id: int
+    pass
 
-    cliente_id: int
 
-    metodo_pago: str
+# =========================================
+# RESPUESTA ROL
+# =========================================
 
-    detalles: List[DetalleVentaCreate]
+class RolResponse(RolBase):
+
+    # ID rol
+    id_rol: int
+
+    class Config:
+
+        # Convierte ORM → JSON
+        from_attributes = True

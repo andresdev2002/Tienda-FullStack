@@ -4,34 +4,36 @@
 
 from pydantic import BaseModel
 
-# =========================================
-# TYPING
-# =========================================
-
-from typing import List
-
 
 # =========================================
-# DETALLE VENTA
+# BASE CATEGORIA
 # =========================================
 
-class DetalleVentaCreate(BaseModel):
+class CategoriaBase(BaseModel):
 
-    producto_id: int
-
-    cantidad: int
+    # Nombre categoría
+    nombre: str
 
 
 # =========================================
-# VENTA
+# CREAR CATEGORIA
 # =========================================
 
-class VentaCreate(BaseModel):
+class CategoriaCreate(CategoriaBase):
 
-    usuario_id: int
+    pass
 
-    cliente_id: int
 
-    metodo_pago: str
+# =========================================
+# RESPUESTA CATEGORIA
+# =========================================
 
-    detalles: List[DetalleVentaCreate]
+class CategoriaResponse(CategoriaBase):
+
+    # ID categoría
+    id_categoria: int
+
+    class Config:
+
+        # ORM → JSON
+        from_attributes = True
