@@ -4,43 +4,44 @@
 
 from pydantic import BaseModel
 
-
-# =========================================
-# BASE USUARIO
-# =========================================
-
-class UsuarioBase(BaseModel):
-
-    # Username usuario
-    username: str
+from typing import Optional
 
 
 # =========================================
-# CREAR USUARIO
+# BASE CLIENTE
 # =========================================
 
-class UsuarioCreate(UsuarioBase):
+class ClienteBase(BaseModel):
 
-    # Password usuario
-    password: str
+    # Nombre cliente
+    nombre: str
 
-    # Rol usuario
-    rol_id: int
+    # Teléfono cliente
+    telefono: Optional[str] = None
+
+    # Email cliente
+    email: Optional[str] = None
 
 
 # =========================================
-# RESPUESTA USUARIO
+# CREAR CLIENTE
 # =========================================
 
-class UsuarioResponse(UsuarioBase):
+class ClienteCreate(ClienteBase):
 
-    # ID usuario
-    id_usuario: int
+    pass
 
-    # ID rol
-    rol_id: int
+
+# =========================================
+# RESPUESTA CLIENTE
+# =========================================
+
+class ClienteResponse(ClienteBase):
+
+    # ID cliente
+    id_cliente: int
 
     class Config:
 
-        # Convierte ORM → JSON
+        # ORM → JSON
         from_attributes = True

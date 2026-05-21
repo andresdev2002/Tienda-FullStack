@@ -1,29 +1,42 @@
 from sqlalchemy import create_engine
-from sqlalchemy.orm import sessionmaker, declarative_base
-from dotenv import load_dotenv
-import os
 
-# Cargar variables del .env
-load_dotenv()
+from sqlalchemy.orm import declarative_base
 
-DB_USER = os.getenv("DB_USER")
-DB_PASSWORD = os.getenv("DB_PASSWORD")
-DB_HOST = os.getenv("DB_HOST")
-DB_PORT = os.getenv("DB_PORT")
-DB_NAME = os.getenv("DB_NAME")
+from sqlalchemy.orm import sessionmaker
 
-# URL de conexión
-DATABASE_URL = f"mysql+pymysql://{DB_USER}:{DB_PASSWORD}@{DB_HOST}:{DB_PORT}/{DB_NAME}"
 
-# Motor de conexión
-engine = create_engine(DATABASE_URL)
+# =========================================
+# URL BASE DATOS
+# =========================================
 
-# Sesiones
+DATABASE_URL = (
+    "mysql+pymysql://root:root"
+    "@localhost/tienda_inventario_pro"
+)
+
+
+# =========================================
+# ENGINE
+# =========================================
+
+engine = create_engine(
+    DATABASE_URL
+)
+
+
+# =========================================
+# SESIONES
+# =========================================
+
 SessionLocal = sessionmaker(
     autocommit=False,
     autoflush=False,
     bind=engine
 )
 
-# Base para modelos
+
+# =========================================
+# BASE MODELOS
+# =========================================
+
 Base = declarative_base()
