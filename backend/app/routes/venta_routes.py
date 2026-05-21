@@ -69,23 +69,65 @@ def get_db():
 
 @router.post("/")
 def crear_venta(
-    venta: VentaCreate,
+
+    # Datos enviados desde Swagger o frontend
+    datos: VentaCreate,
+
+    # Sesión de base de datos
     db: Session = Depends(get_db)
+
 ):
 
+    # =========================================
+    # VARIABLE TOTAL VENTA
+    # =========================================
+
+    # Aquí acumularemos el total general
     total_venta = 0
 
-    # =====================================
-    # VALIDAR STOCK
-    # =====================================
+    # =========================================
+    # CREAR VENTA PRINCIPAL
+    # =========================================
 
-    for item in venta.detalles:
+    nueva_venta = Venta(
+
+        usuario_id=datos.usuario_id,
+
+        cliente_id=datos.cliente_id,
+
+        metodo_pago=datos.metodo_pago,
+
+        # Inicialmente el total será 0
+        total=0
+    )
+
+    # Guardar venta temporalmente
+    db.add(nueva_venta)
+
+    db.commit()
+
+    # Refrescar para obtener el ID generado
+    db.refresh(nueva_venta)
+
+    # =========================================
+    # RECORRER DETALLES
+    # =========================================
+
+    for item in datos.detalles:
+
+        # =========================================
+        # BUSCAR PRODUCTO
+        # =========================================
 
         producto = db.query(
             Producto
         ).filter(
             Producto.id_producto == item.producto_id
         ).first()
+
+        # =========================================
+        # VALIDAR PRODUCTO
+        # =========================================
 
         if not producto:
 
@@ -94,6 +136,10 @@ def crear_venta(
                 detail=f"Producto {item.producto_id} no encontrado"
             )
 
+        # =========================================
+        # VALIDAR STOCK
+        # =========================================
+
         if producto.stock_actual < item.cantidad:
 
             raise HTTPException(
@@ -101,58 +147,27 @@ def crear_venta(
                 detail=f"Stock insuficiente para {producto.nombre}"
             )
 
-    # =====================================
-    # CREAR VENTA
-    # =====================================
+        # =========================================
+        # CALCULAR SUBTOTAL
+        # =========================================
 
-    nueva_venta = Venta(
+        subtotal = producto.precio_venta * item.cantidad
 
-        cliente_id=venta.cliente_id,
-
-        usuario_id=venta.usuario_id,
-
-        total=0
-    )
-
-    db.add(nueva_venta)
-
-    db.commit()
-
-    db.refresh(nueva_venta)
-
-    # =====================================
-    # CREAR DETALLES
-    # =====================================
-
-    for item in venta.detalles:
-
-        producto = db.query(
-            Producto
-        ).filter(
-            Producto.id_producto == item.producto_id
-        ).first()
-
-        subtotal = (
-            producto.precio_venta * item.cantidad
-        )
+        # =========================================
+        # ACUMULAR TOTAL GENERAL
+        # =========================================
 
         total_venta += subtotal
 
-        # =================================
-        # DESCONTAR STOCK
-        # =================================
+        # =========================================
+        # CREAR DETALLE VENTA
+        # =========================================
 
-        producto.stock_actual -= item.cantidad
-
-        # =================================
-        # DETALLE VENTA
-        # =================================
-
-        detalle = DetalleVenta(
+        nuevo_detalle = DetalleVenta(
 
             venta_id=nueva_venta.id_venta,
 
-            producto_id=item.producto_id,
+            producto_id=producto.id_producto,
 
             cantidad=item.cantidad,
 
@@ -161,36 +176,56 @@ def crear_venta(
             subtotal=subtotal
         )
 
-        db.add(detalle)
+        # Guardar detalle
+        db.add(nuevo_detalle)
 
-        # =================================
-        # MOVIMIENTO INVENTARIO
-        # =================================
+        # =========================================
+        # DESCONTAR STOCK
+        # =========================================
 
-        movimiento = MovimientoInventario(
+        producto.stock_actual -= item.cantidad
+
+        # =========================================
+        # CREAR MOVIMIENTO INVENTARIO
+        # =========================================
+
+        nuevo_movimiento = MovimientoInventario(
 
             producto_id=producto.id_producto,
 
-            usuario_id=venta.usuario_id,
+            usuario_id=datos.usuario_id,
 
             tipo_movimiento="SALIDA",
 
             cantidad=item.cantidad,
 
-            observacion=f"Venta #{nueva_venta.id_venta}"
+            observacion=f"Venta realizada ID {nueva_venta.id_venta}"
         )
 
-        db.add(movimiento)
+        # Guardar movimiento
+        db.add(nuevo_movimiento)
 
-    # =====================================
-    # ACTUALIZAR TOTAL
-    # =====================================
+    # =========================================
+    # GUARDAR TOTAL FINAL
+    # =========================================
 
     nueva_venta.total = total_venta
 
+    # =========================================
+    # GUARDAR TODOS LOS CAMBIOS
+    # =========================================
+
     db.commit()
 
+    # =========================================
+    # RESPUESTA FINAL
+    # =========================================
+
     return {
-        "message": "Venta realizada correctamente",
-        "total": total_venta
+
+        "message": "Venta creada correctamente",
+
+        "venta_id": nueva_venta.id_venta,
+
+        "total_venta": total_venta
     }
