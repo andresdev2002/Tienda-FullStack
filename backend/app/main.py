@@ -6,6 +6,7 @@ from app.routes.categoria_routes import router as categoria_router
 from app.routes.productos_routes import router as productos_router
 from app.routes.proveedor_routes import router as proveedor_router
 from app.routes.venta_routes import router as venta_router
+from app.routes.usuario_routes import router as usuario_router
 from app.routes.movimiento_inventario_routes import (
     router as movimiento_router
 )
@@ -46,3 +47,4 @@ app.include_router(productos_router)
 app.include_router(proveedor_router)
 app.include_router(venta_router)
 app.include_router(movimiento_router)
+app.include_router(usuario_router)

@@ -3,44 +3,38 @@
 # =========================================
 
 from pydantic import BaseModel
-
-
-# =========================================
-# BASE USUARIO
-# =========================================
-
-class UsuarioBase(BaseModel):
-
-    # Username usuario
-    username: str
-
+from pydantic import EmailStr
 
 # =========================================
-# CREAR USUARIO
+# USUARIO CREATE
 # =========================================
 
-class UsuarioCreate(UsuarioBase):
+class UsuarioCreate(BaseModel):
 
-    # Password usuario
+    nombre: str
+
+    email: EmailStr
+
     password: str
 
-    # Rol usuario
     rol_id: int
 
-
 # =========================================
-# RESPUESTA USUARIO
+# USUARIO RESPONSE
 # =========================================
 
-class UsuarioResponse(UsuarioBase):
+class UsuarioResponse(BaseModel):
 
-    # ID usuario
     id_usuario: int
 
-    # ID rol
+    nombre: str
+
+    email: EmailStr
+
+    estado: bool
+
     rol_id: int
 
     class Config:
 
-        # Convierte ORM → JSON
         from_attributes = True
