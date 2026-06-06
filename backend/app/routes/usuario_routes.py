@@ -5,6 +5,7 @@
 from fastapi import APIRouter
 from fastapi import Depends
 from fastapi import HTTPException
+from app.dependencies.auth import get_current_user
 
 # =========================================
 # SQLALCHEMY
@@ -214,4 +215,23 @@ def login(
         "access_token": token,
 
         "token_type": "bearer"
+    }
+# =========================================
+# PERFIL USUARIO
+# =========================================
+
+@router.get("/perfil")
+def perfil(
+
+    usuario = Depends(get_current_user)
+
+):
+
+    return {
+
+        "id": usuario.id_usuario,
+
+        "nombre": usuario.nombre,
+
+        "email": usuario.email
     }
