@@ -30,14 +30,20 @@ from app.models.usuario_model import Usuario
 
 from app.schemas.usuario_schema import (
     UsuarioCreate,
-    UsuarioResponse
+    UsuarioResponse,
+    LoginRequest,
+    TokenResponse
 )
 
 # =========================================
 # SEGURIDAD
 # =========================================
 
-from app.core.security import hash_password
+from app.core.security import (
+    hash_password,
+    verify_password,
+    create_access_token
+)
 
 # =========================================
 # ROUTER
@@ -103,7 +109,10 @@ def crear_usuario(
     # =====================================
     # ENCRIPTAR PASSWORD
     # =====================================
-
+    print("TIPO:", type(usuario.password))
+    print("VALOR:", usuario.password)
+    print("LONGITUD:", len(usuario.password))
+    
     password_encriptado = hash_password(
         usuario.password
     )
@@ -131,3 +140,78 @@ def crear_usuario(
     db.refresh(nuevo_usuario)
 
     return nuevo_usuario
+
+# =========================================
+# LOGIN
+# =========================================
+
+@router.post(
+    "/login",
+    response_model=TokenResponse
+)
+def login(
+
+    datos: LoginRequest,
+
+    db: Session = Depends(get_db)
+
+):
+
+    # =====================================
+    # BUSCAR USUARIO
+    # =====================================
+
+    usuario = db.query(
+        Usuario
+    ).filter(
+        Usuario.email == datos.email
+    ).first()
+
+    # =====================================
+    # VALIDAR USUARIO
+    # =====================================
+
+    if not usuario:
+
+        raise HTTPException(
+            status_code=401,
+            detail="Credenciales incorrectas"
+        )
+
+    # =====================================
+    # VALIDAR PASSWORD
+    # =====================================
+
+    if not verify_password(
+        datos.password,
+        usuario.password
+    ):
+
+        raise HTTPException(
+            status_code=401,
+            detail="Credenciales incorrectas"
+        )
+
+    # =====================================
+    # CREAR TOKEN
+    # =====================================
+
+    token = create_access_token({
+
+        "sub": usuario.email,
+
+        "id_usuario": usuario.id_usuario,
+
+        "rol_id": usuario.rol_id
+    })
+
+    # =====================================
+    # RESPUESTA
+    # =====================================
+
+    return {
+
+        "access_token": token,
+
+        "token_type": "bearer"
+    }
