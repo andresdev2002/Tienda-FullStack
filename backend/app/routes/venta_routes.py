@@ -55,7 +55,7 @@ def get_db():
 
 
 # =========================================
-# CREAR VENTA (POS COMPLETO)
+# CREAR VENTA
 # =========================================
 
 @router.post("/")
@@ -67,20 +67,12 @@ def crear_venta(
 
     try:
 
-        # =========================================
-        # VALIDAR CLIENTE
-        # =========================================
-
         cliente = db.query(Cliente).filter(
             Cliente.id_cliente == datos.cliente_id
         ).first()
 
         if not cliente:
             raise HTTPException(status_code=404, detail="Cliente no existe")
-
-        # =========================================
-        # CREAR VENTA BASE
-        # =========================================
 
         total_venta = 0
 
@@ -92,39 +84,23 @@ def crear_venta(
         )
 
         db.add(nueva_venta)
-
-        # IMPORTANTE: obtener ID sin commit
         db.flush()
-
-        # =========================================
-        # DETALLES DE VENTA
-        # =========================================
 
         for item in datos.detalles:
 
-            # BUSCAR PRODUCTO
             producto = db.query(Producto).filter(
                 Producto.id_producto == item.producto_id
             ).first()
 
             if not producto:
-                raise HTTPException(
-                    status_code=404,
-                    detail=f"Producto {item.producto_id} no encontrado"
-                )
+                raise HTTPException(status_code=404, detail="Producto no encontrado")
 
-            # VALIDAR STOCK
             if producto.stock_actual < item.cantidad:
-                raise HTTPException(
-                    status_code=400,
-                    detail=f"Stock insuficiente para {producto.nombre}"
-                )
+                raise HTTPException(status_code=400, detail="Stock insuficiente")
 
-            # CALCULAR SUBTOTAL
             subtotal = producto.precio_venta * item.cantidad
             total_venta += subtotal
 
-            # CREAR DETALLE
             detalle = DetalleVenta(
                 venta_id=nueva_venta.id_venta,
                 producto_id=producto.id_producto,
@@ -135,10 +111,8 @@ def crear_venta(
 
             db.add(detalle)
 
-            # DESCONTAR STOCK
             producto.stock_actual -= item.cantidad
 
-            # MOVIMIENTO INVENTARIO (SALIDA)
             movimiento = MovimientoInventario(
                 producto_id=producto.id_producto,
                 usuario_id=usuario.id_usuario,
@@ -149,24 +123,99 @@ def crear_venta(
 
             db.add(movimiento)
 
-        # =========================================
-        # TOTAL FINAL
-        # =========================================
-
         nueva_venta.total = total_venta
-
-        # =========================================
-        # GUARDAR TODO
-        # =========================================
 
         db.commit()
 
         return {
             "message": "Venta creada correctamente",
             "venta_id": nueva_venta.id_venta,
-            "total_venta": total_venta
+            "total": total_venta
         }
 
     except Exception as e:
         db.rollback()
         raise HTTPException(status_code=500, detail=str(e))
+
+
+# =========================================
+# LISTAR VENTAS
+# =========================================
+
+@router.get("/")
+def listar_ventas(db: Session = Depends(get_db)):
+
+    ventas = db.query(Venta).all()
+
+    return [
+        {
+            "id_venta": v.id_venta,
+            "cliente": v.cliente.nombre if v.cliente else None,
+            "usuario_id": v.usuario_id,
+            "metodo_pago": v.metodo_pago,
+            "fecha_venta": v.fecha_venta,
+            "total": v.total
+        }
+        for v in ventas
+    ]
+
+
+# =========================================
+# OBTENER VENTA
+# =========================================
+
+@router.get("/{id_venta}")
+def obtener_venta(id_venta: int, db: Session = Depends(get_db)):
+
+    venta = db.query(Venta).filter(
+        Venta.id_venta == id_venta
+    ).first()
+
+    if not venta:
+        raise HTTPException(status_code=404)
+
+    return {
+        "id_venta": venta.id_venta,
+        "cliente": venta.cliente.nombre if venta.cliente else None,
+        "usuario_id": venta.usuario_id,
+        "metodo_pago": venta.metodo_pago,
+        "fecha_venta": venta.fecha_venta,
+        "total": venta.total
+    }
+
+
+# =========================================
+# DETALLE VENTA
+# =========================================
+
+@router.get("/{id_venta}/detalle")
+def detalle_venta(id_venta: int, db: Session = Depends(get_db)):
+
+    venta = db.query(Venta).filter(
+        Venta.id_venta == id_venta
+    ).first()
+
+    if not venta:
+        raise HTTPException(status_code=404)
+
+    detalles = db.query(DetalleVenta).filter(
+        DetalleVenta.venta_id == id_venta
+    ).all()
+
+    productos = [
+        {
+            "producto": d.producto.nombre,
+            "cantidad": d.cantidad,
+            "precio_unitario": d.precio_unitario,
+            "subtotal": d.subtotal
+        }
+        for d in detalles
+    ]
+
+    return {
+        "venta": venta.id_venta,
+        "cliente": venta.cliente.nombre if venta.cliente else None,
+        "fecha": venta.fecha_venta,
+        "total": venta.total,
+        "productos": productos
+    }
