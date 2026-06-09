@@ -28,6 +28,8 @@ from app.models.categoria_model import Categoria
 
 from app.models.proveedor_model import Proveedor
 
+from app.dependencies.roles import require_admin
+
 # =========================================
 # SCHEMAS
 # =========================================
@@ -72,7 +74,8 @@ def get_db():
 )
 def crear_producto(
     producto: ProductoCreate,
-    db: Session = Depends(get_db)
+    db: Session = Depends(get_db),
+    usuario = Depends(require_admin)
 ):
 
     # Verificar categoría
@@ -200,7 +203,8 @@ def obtener_producto(
 def actualizar_producto(
     id_producto: int,
     datos: ProductoCreate,
-    db: Session = Depends(get_db)
+    db: Session = Depends(get_db),
+    usuario = Depends(require_admin)
 ):
 
     producto = db.query(
@@ -242,9 +246,11 @@ def actualizar_producto(
 # =========================================
 
 @router.delete("/{id_producto}")
+
 def eliminar_producto(
     id_producto: int,
-    db: Session = Depends(get_db)
+    db: Session = Depends(get_db),
+    usuario = Depends(require_admin)
 ):
 
     producto = db.query(

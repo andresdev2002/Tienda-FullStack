@@ -11,9 +11,8 @@ from app.routes.movimiento_inventario_routes import (
     router as movimiento_router
 )
 from app.models import *
-
-
-# =========================================
+from app.routes.inventario_routes import router as inventario_router
+# ========================================
 # CREAR TABLAS
 # =========================================
 
@@ -48,3 +47,4 @@ app.include_router(proveedor_router)
 app.include_router(venta_router)
 app.include_router(movimiento_router)
 app.include_router(usuario_router)
+app.include_router(inventario_router)

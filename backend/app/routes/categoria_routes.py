@@ -34,6 +34,12 @@ from app.schemas.categoria_schema import (
 )
 
 # =========================================
+# ROLES
+# =========================================
+
+from app.dependencies.roles import require_admin
+
+# =========================================
 # ROUTER
 # =========================================
 
@@ -67,8 +73,13 @@ def get_db():
     response_model=CategoriaResponse
 )
 def crear_categoria(
+
     categoria: CategoriaCreate,
-    db: Session = Depends(get_db)
+
+    db: Session = Depends(get_db),
+
+    usuario = Depends(require_admin)
+
 ):
 
     categoria_existente = db.query(
@@ -105,7 +116,9 @@ def crear_categoria(
     response_model=list[CategoriaResponse]
 )
 def listar_categorias(
+
     db: Session = Depends(get_db)
+
 ):
 
     categorias = db.query(
@@ -123,8 +136,11 @@ def listar_categorias(
     response_model=CategoriaResponse
 )
 def obtener_categoria(
+
     id_categoria: int,
+
     db: Session = Depends(get_db)
+
 ):
 
     categoria = db.query(
@@ -151,9 +167,15 @@ def obtener_categoria(
     response_model=CategoriaResponse
 )
 def actualizar_categoria(
+
     id_categoria: int,
+
     datos: CategoriaCreate,
-    db: Session = Depends(get_db)
+
+    db: Session = Depends(get_db),
+
+    usuario = Depends(require_admin)
+
 ):
 
     categoria = db.query(
@@ -183,8 +205,13 @@ def actualizar_categoria(
 
 @router.delete("/{id_categoria}")
 def eliminar_categoria(
+
     id_categoria: int,
-    db: Session = Depends(get_db)
+
+    db: Session = Depends(get_db),
+
+    usuario = Depends(require_admin)
+
 ):
 
     categoria = db.query(

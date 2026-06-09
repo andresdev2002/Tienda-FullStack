@@ -28,6 +28,12 @@ from app.models.detalle_venta_model import DetalleVenta
 
 from app.models.producto_model import Producto
 
+from app.dependencies.roles import require_vendedor
+
+from app.dependencies.roles import (
+    require_admin_or_vendedor
+)
+
 from app.models.movimiento_inventario_model import (
     MovimientoInventario
 )
@@ -70,11 +76,13 @@ def get_db():
 @router.post("/")
 def crear_venta(
 
-    # Datos enviados desde Swagger o frontend
     datos: VentaCreate,
 
-    # Sesión de base de datos
-    db: Session = Depends(get_db)
+    db: Session = Depends(get_db),
+
+    usuario = Depends(
+        require_admin_or_vendedor
+    )
 
 ):
 
@@ -91,16 +99,14 @@ def crear_venta(
 
     nueva_venta = Venta(
 
-        usuario_id=datos.usuario_id,
+    usuario_id=usuario.id_usuario,
 
-        cliente_id=datos.cliente_id,
+    cliente_id=datos.cliente_id,
 
-        metodo_pago=datos.metodo_pago,
+    metodo_pago=datos.metodo_pago,
 
-        # Inicialmente el total será 0
-        total=0
-    )
-
+    total=0
+)
     # Guardar venta temporalmente
     db.add(nueva_venta)
 
@@ -191,16 +197,16 @@ def crear_venta(
 
         nuevo_movimiento = MovimientoInventario(
 
-            producto_id=producto.id_producto,
+    producto_id=producto.id_producto,
 
-            usuario_id=datos.usuario_id,
+    usuario_id=usuario.id_usuario,
 
-            tipo_movimiento="SALIDA",
+    tipo_movimiento="SALIDA",
 
-            cantidad=item.cantidad,
+    cantidad=item.cantidad,
 
-            observacion=f"Venta realizada ID {nueva_venta.id_venta}"
-        )
+    observacion=f"Venta realizada ID {nueva_venta.id_venta}"
+)
 
         # Guardar movimiento
         db.add(nuevo_movimiento)
