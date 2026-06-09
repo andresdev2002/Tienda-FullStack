@@ -28,7 +28,6 @@ class DetalleVentaCreate(BaseModel):
 
 class VentaCreate(BaseModel):
 
-    usuario_id: int
 
     cliente_id: int
 

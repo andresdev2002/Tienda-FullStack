@@ -7,6 +7,33 @@ from fastapi import Depends
 from fastapi import HTTPException
 from app.dependencies.auth import get_current_user
 
+from app.dependencies.roles import require_admin
+
+router = APIRouter(
+
+    prefix="/usuarios",
+
+    tags=["Usuarios"]
+)
+
+# =========================================
+# SOLO ADMIN
+# =========================================
+
+@router.get("/solo-admin")
+def solo_admin(
+
+    usuario = Depends(require_admin)
+
+):
+
+    return {
+
+        "mensaje": "Bienvenido administrador",
+
+        "usuario": usuario.nombre
+    }
+
 # =========================================
 # SQLALCHEMY
 # =========================================
@@ -234,4 +261,18 @@ def perfil(
         "nombre": usuario.nombre,
 
         "email": usuario.email
+    }
+
+@router.get("/solo-admin")
+def solo_admin(
+
+    usuario = Depends(require_admin)
+
+):
+
+    return {
+
+        "mensaje": "Bienvenido ADMIN",
+
+        "usuario": usuario.nombre
     }
