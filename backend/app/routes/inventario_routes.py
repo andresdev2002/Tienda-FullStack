@@ -108,3 +108,95 @@ def listar_movimientos(
     ).all()
 
     return movimientos
+
+# =========================================
+# KARDEX POR PRODUCTO
+# =========================================
+
+@router.get("/kardex/{id_producto}")
+def kardex_producto(
+
+    id_producto: int,
+
+    db: Session = Depends(get_db)
+
+):
+
+    producto = db.query(
+        Producto
+    ).filter(
+        Producto.id_producto == id_producto
+    ).first()
+
+    if not producto:
+
+        raise HTTPException(
+            status_code=404,
+            detail="Producto no encontrado"
+        )
+
+    movimientos = db.query(
+        MovimientoInventario
+    ).filter(
+        MovimientoInventario.producto_id == id_producto
+    ).all()
+
+    resultado = []
+
+    for movimiento in movimientos:
+
+        resultado.append({
+
+            "id_movimiento": movimiento.id_movimiento,
+
+            "tipo_movimiento": movimiento.tipo_movimiento,
+
+            "cantidad": movimiento.cantidad,
+
+            "observacion": movimiento.observacion,
+
+            "fecha_movimiento": movimiento.fecha_movimiento
+        })
+
+    return {
+
+        "producto": producto.nombre,
+
+        "stock_actual": producto.stock_actual,
+
+        "movimientos": resultado
+    }
+
+# =========================================
+# STOCK BAJO
+# =========================================
+
+@router.get("/stock-bajo")
+def stock_bajo(
+
+    db: Session = Depends(get_db)
+
+):
+
+    productos = db.query(
+        Producto
+    ).filter(
+        Producto.stock_actual <= Producto.stock_minimo
+    ).all()
+
+    resultado = []
+
+    for producto in productos:
+
+        resultado.append({
+
+            "id_producto": producto.id_producto,
+
+            "nombre": producto.nombre,
+
+            "stock_actual": producto.stock_actual,
+
+            "stock_minimo": producto.stock_minimo
+        })
+
+    return resultado

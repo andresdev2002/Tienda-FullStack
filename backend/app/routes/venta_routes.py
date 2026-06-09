@@ -2,14 +2,7 @@
 # FASTAPI
 # =========================================
 
-from fastapi import APIRouter
-from fastapi import Depends
-from fastapi import HTTPException
-
-# =========================================
-# SQLALCHEMY
-# =========================================
-
+from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.orm import Session
 
 # =========================================
@@ -23,26 +16,22 @@ from app.database import SessionLocal
 # =========================================
 
 from app.models.venta_model import Venta
-
 from app.models.detalle_venta_model import DetalleVenta
-
 from app.models.producto_model import Producto
-
-from app.dependencies.roles import require_vendedor
-
-from app.dependencies.roles import (
-    require_admin_or_vendedor
-)
-
-from app.models.movimiento_inventario_model import (
-    MovimientoInventario
-)
+from app.models.cliente_model import Cliente
+from app.models.movimiento_inventario_model import MovimientoInventario
 
 # =========================================
 # SCHEMAS
 # =========================================
 
 from app.schemas.venta_schema import VentaCreate
+
+# =========================================
+# AUTH
+# =========================================
+
+from app.dependencies.roles import require_admin_or_vendedor
 
 # =========================================
 # ROUTER
@@ -54,184 +43,130 @@ router = APIRouter(
 )
 
 # =========================================
-# DATABASE SESSION
+# DB SESSION
 # =========================================
 
 def get_db():
-
     db = SessionLocal()
-
     try:
-
         yield db
-
     finally:
-
         db.close()
 
+
 # =========================================
-# CREAR VENTA
+# CREAR VENTA (POS COMPLETO)
 # =========================================
 
 @router.post("/")
 def crear_venta(
-
     datos: VentaCreate,
-
     db: Session = Depends(get_db),
-
-    usuario = Depends(
-        require_admin_or_vendedor
-    )
-
+    usuario = Depends(require_admin_or_vendedor)
 ):
 
-    # =========================================
-    # VARIABLE TOTAL VENTA
-    # =========================================
-
-    # Aquí acumularemos el total general
-    total_venta = 0
-
-    # =========================================
-    # CREAR VENTA PRINCIPAL
-    # =========================================
-
-    nueva_venta = Venta(
-
-    usuario_id=usuario.id_usuario,
-
-    cliente_id=datos.cliente_id,
-
-    metodo_pago=datos.metodo_pago,
-
-    total=0
-)
-    # Guardar venta temporalmente
-    db.add(nueva_venta)
-
-    db.commit()
-
-    # Refrescar para obtener el ID generado
-    db.refresh(nueva_venta)
-
-    # =========================================
-    # RECORRER DETALLES
-    # =========================================
-
-    for item in datos.detalles:
+    try:
 
         # =========================================
-        # BUSCAR PRODUCTO
+        # VALIDAR CLIENTE
         # =========================================
 
-        producto = db.query(
-            Producto
-        ).filter(
-            Producto.id_producto == item.producto_id
+        cliente = db.query(Cliente).filter(
+            Cliente.id_cliente == datos.cliente_id
         ).first()
 
-        # =========================================
-        # VALIDAR PRODUCTO
-        # =========================================
-
-        if not producto:
-
-            raise HTTPException(
-                status_code=404,
-                detail=f"Producto {item.producto_id} no encontrado"
-            )
+        if not cliente:
+            raise HTTPException(status_code=404, detail="Cliente no existe")
 
         # =========================================
-        # VALIDAR STOCK
+        # CREAR VENTA BASE
         # =========================================
 
-        if producto.stock_actual < item.cantidad:
+        total_venta = 0
 
-            raise HTTPException(
-                status_code=400,
-                detail=f"Stock insuficiente para {producto.nombre}"
-            )
-
-        # =========================================
-        # CALCULAR SUBTOTAL
-        # =========================================
-
-        subtotal = producto.precio_venta * item.cantidad
-
-        # =========================================
-        # ACUMULAR TOTAL GENERAL
-        # =========================================
-
-        total_venta += subtotal
-
-        # =========================================
-        # CREAR DETALLE VENTA
-        # =========================================
-
-        nuevo_detalle = DetalleVenta(
-
-            venta_id=nueva_venta.id_venta,
-
-            producto_id=producto.id_producto,
-
-            cantidad=item.cantidad,
-
-            precio_unitario=producto.precio_venta,
-
-            subtotal=subtotal
+        nueva_venta = Venta(
+            usuario_id=usuario.id_usuario,
+            cliente_id=datos.cliente_id,
+            metodo_pago=datos.metodo_pago,
+            total=0
         )
 
-        # Guardar detalle
-        db.add(nuevo_detalle)
+        db.add(nueva_venta)
+
+        # IMPORTANTE: obtener ID sin commit
+        db.flush()
 
         # =========================================
-        # DESCONTAR STOCK
+        # DETALLES DE VENTA
         # =========================================
 
-        producto.stock_actual -= item.cantidad
+        for item in datos.detalles:
+
+            # BUSCAR PRODUCTO
+            producto = db.query(Producto).filter(
+                Producto.id_producto == item.producto_id
+            ).first()
+
+            if not producto:
+                raise HTTPException(
+                    status_code=404,
+                    detail=f"Producto {item.producto_id} no encontrado"
+                )
+
+            # VALIDAR STOCK
+            if producto.stock_actual < item.cantidad:
+                raise HTTPException(
+                    status_code=400,
+                    detail=f"Stock insuficiente para {producto.nombre}"
+                )
+
+            # CALCULAR SUBTOTAL
+            subtotal = producto.precio_venta * item.cantidad
+            total_venta += subtotal
+
+            # CREAR DETALLE
+            detalle = DetalleVenta(
+                venta_id=nueva_venta.id_venta,
+                producto_id=producto.id_producto,
+                cantidad=item.cantidad,
+                precio_unitario=producto.precio_venta,
+                subtotal=subtotal
+            )
+
+            db.add(detalle)
+
+            # DESCONTAR STOCK
+            producto.stock_actual -= item.cantidad
+
+            # MOVIMIENTO INVENTARIO (SALIDA)
+            movimiento = MovimientoInventario(
+                producto_id=producto.id_producto,
+                usuario_id=usuario.id_usuario,
+                tipo_movimiento="SALIDA",
+                cantidad=item.cantidad,
+                observacion=f"Venta ID {nueva_venta.id_venta}"
+            )
+
+            db.add(movimiento)
 
         # =========================================
-        # CREAR MOVIMIENTO INVENTARIO
+        # TOTAL FINAL
         # =========================================
 
-        nuevo_movimiento = MovimientoInventario(
+        nueva_venta.total = total_venta
 
-    producto_id=producto.id_producto,
+        # =========================================
+        # GUARDAR TODO
+        # =========================================
 
-    usuario_id=usuario.id_usuario,
+        db.commit()
 
-    tipo_movimiento="SALIDA",
+        return {
+            "message": "Venta creada correctamente",
+            "venta_id": nueva_venta.id_venta,
+            "total_venta": total_venta
+        }
 
-    cantidad=item.cantidad,
-
-    observacion=f"Venta realizada ID {nueva_venta.id_venta}"
-)
-
-        # Guardar movimiento
-        db.add(nuevo_movimiento)
-
-    # =========================================
-    # GUARDAR TOTAL FINAL
-    # =========================================
-
-    nueva_venta.total = total_venta
-
-    # =========================================
-    # GUARDAR TODOS LOS CAMBIOS
-    # =========================================
-
-    db.commit()
-
-    # =========================================
-    # RESPUESTA FINAL
-    # =========================================
-
-    return {
-
-        "message": "Venta creada correctamente",
-
-        "venta_id": nueva_venta.id_venta,
-
-        "total_venta": total_venta
-    }
+    except Exception as e:
+        db.rollback()
+        raise HTTPException(status_code=500, detail=str(e))
