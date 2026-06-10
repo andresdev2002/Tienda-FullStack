@@ -13,6 +13,9 @@ from app.routes.movimiento_inventario_routes import (
 from app.models import *
 from app.routes.inventario_routes import router as inventario_router
 from app.routes.clientes_routes import router as clientes_router
+from app.routes.dashboard_routes import (
+    router as dashboard_router
+)
 # ========================================
 # CREAR TABLAS
 # =========================================
@@ -50,4 +53,5 @@ app.include_router(movimiento_router)
 app.include_router(usuario_router)
 app.include_router(inventario_router)
 app.include_router(clientes_router)
+app.include_router(dashboard_router)
 
