@@ -8,6 +8,10 @@ from app.database import SessionLocal
 
 from app.models.producto_model import Producto
 
+from app.dependencies.roles import (
+    require_admin_or_bodeguero
+)
+
 from app.models.movimiento_inventario_model import (
     MovimientoInventario
 )
@@ -43,7 +47,11 @@ def entrada_inventario(
 
     datos: EntradaInventarioCreate,
 
-    db: Session = Depends(get_db)
+    db: Session = Depends(get_db),
+
+    usuario = Depends(
+        require_admin_or_bodeguero
+    )
 
 ):
 
@@ -70,7 +78,7 @@ def entrada_inventario(
 
         producto_id=producto.id_producto,
 
-        usuario_id=4,
+        usuario_id=usuario.id_usuario,
 
         tipo_movimiento="ENTRADA",
 
@@ -99,7 +107,11 @@ def entrada_inventario(
 @router.get("/movimientos")
 def listar_movimientos(
 
-    db: Session = Depends(get_db)
+    db: Session = Depends(get_db),
+
+    usuario = Depends(
+        require_admin_or_bodeguero
+    )
 
 ):
 
@@ -118,7 +130,11 @@ def kardex_producto(
 
     id_producto: int,
 
-    db: Session = Depends(get_db)
+    db: Session = Depends(get_db),
+
+    usuario = Depends(
+        require_admin_or_bodeguero
+    )
 
 ):
 
@@ -174,7 +190,11 @@ def kardex_producto(
 @router.get("/stock-bajo")
 def stock_bajo(
 
-    db: Session = Depends(get_db)
+    db: Session = Depends(get_db),
+
+    usuario = Depends(
+        require_admin_or_bodeguero
+    )
 
 ):
 

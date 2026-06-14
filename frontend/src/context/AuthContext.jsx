@@ -4,23 +4,50 @@ export const AuthContext = createContext();
 
 export function AuthProvider({ children }) {
 
-    const [token, setToken] = useState(
+    // =========================================
+    // TOKEN
+    // =========================================
 
+    const [token, setToken] = useState(
         localStorage.getItem("token")
     );
 
     // =========================================
-    // GUARDAR TOKEN
+    // USUARIO
     // =========================================
 
-    const guardarToken = (nuevoToken) => {
+    const [usuario, setUsuario] = useState(
+
+        JSON.parse(
+            localStorage.getItem("usuario")
+        )
+    );
+
+    // =========================================
+    // GUARDAR SESIÓN
+    // =========================================
+
+    const guardarSesion = (
+
+        nuevoToken,
+
+        nuevoUsuario
+
+    ) => {
 
         localStorage.setItem(
-        "token",
-        nuevoToken
+            "token",
+            nuevoToken
+        );
+
+        localStorage.setItem(
+            "usuario",
+            JSON.stringify(nuevoUsuario)
         );
 
         setToken(nuevoToken);
+
+        setUsuario(nuevoUsuario);
     };
 
     // =========================================
@@ -30,23 +57,34 @@ export function AuthProvider({ children }) {
     const logout = () => {
 
         localStorage.removeItem(
-        "token"
+            "token"
+        );
+
+        localStorage.removeItem(
+            "usuario"
         );
 
         setToken(null);
+
+        setUsuario(null);
     };
 
     return (
 
         <AuthContext.Provider
-        value={{
-            token,
-            guardarToken,
-            logout
-        }}
+            value={{
+
+                token,
+
+                usuario,
+
+                guardarSesion,
+
+                logout
+            }}
         >
 
-        {children}
+            {children}
 
         </AuthContext.Provider>
     );

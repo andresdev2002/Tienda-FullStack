@@ -1,4 +1,12 @@
-import { useState, useContext } from "react";
+import {
+    useState,
+    useContext
+} from "react";
+
+import {
+    login,
+    obtenerPerfil
+} from "../services/authService";
 
 import {
     Container,
@@ -6,50 +14,73 @@ import {
     Typography,
     TextField,
     Button
-    } from "@mui/material";
+} from "@mui/material";
 
-    import { useNavigate } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 
-    import { login } from "../services/authService";
-
-    import { AuthContext } from "../context/AuthContext";
+import { AuthContext } from "../context/AuthContext";
 
     function Login() {
 
     const navigate = useNavigate();
 
-    const { guardarToken } = useContext(
-        AuthContext
+    const { guardarSesion } = useContext(
+    AuthContext
     );
+    
 
     const [email, setEmail] = useState("");
 
     const [password, setPassword] = useState("");
+const iniciarSesion = async () => {
 
-    const iniciarSesion = async () => {
+    try {
 
-        try {
+        // ============================
+        // LOGIN
+        // ============================
 
         const response = await login(
+
             email,
+
             password
+
         );
 
-        guardarToken(
-            response.access_token
+        const token = response.access_token;
+
+        // ============================
+        // PERFIL
+        // ============================
+
+        const perfil = await obtenerPerfil(
+            token
+        );
+
+        // ============================
+        // GUARDAR SESIÓN
+        // ============================
+
+        guardarSesion(
+
+            token,
+
+            perfil
+
         );
 
         navigate("/dashboard");
 
-        } catch (error) {
+    } catch (error) {
 
         console.error(error);
 
         alert(
             "Credenciales incorrectas"
         );
-        }
-    };
+    }
+};
 
     return (
 

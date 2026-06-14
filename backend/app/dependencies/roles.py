@@ -4,22 +4,9 @@ from fastapi import HTTPException
 from app.dependencies.auth import get_current_user
 
 
-def require_admin_or_vendedor(
-
-    usuario = Depends(get_current_user)
-
-):
-
-    if usuario.rol_id not in [1, 2]:
-
-        raise HTTPException(
-
-            status_code=403,
-
-            detail="Acceso denegado"
-        )
-
-    return usuario
+# =========================================
+# ADMIN
+# =========================================
 
 def require_admin(
 
@@ -37,6 +24,10 @@ def require_admin(
     return usuario
 
 
+# =========================================
+# VENDEDOR
+# =========================================
+
 def require_vendedor(
 
     usuario = Depends(get_current_user)
@@ -53,6 +44,10 @@ def require_vendedor(
     return usuario
 
 
+# =========================================
+# BODEGUERO
+# =========================================
+
 def require_bodeguero(
 
     usuario = Depends(get_current_user)
@@ -68,6 +63,11 @@ def require_bodeguero(
 
     return usuario
 
+
+# =========================================
+# ADMIN O VENDEDOR
+# =========================================
+
 def require_admin_or_vendedor(
 
     usuario = Depends(get_current_user)
@@ -75,6 +75,28 @@ def require_admin_or_vendedor(
 ):
 
     if usuario.rol_id not in [1, 2]:
+
+        raise HTTPException(
+
+            status_code=403,
+
+            detail="Acceso denegado"
+        )
+
+    return usuario
+
+
+# =========================================
+# ADMIN O BODEGUERO
+# =========================================
+
+def require_admin_or_bodeguero(
+
+    usuario = Depends(get_current_user)
+
+):
+
+    if usuario.rol_id not in [1, 3]:
 
         raise HTTPException(
 
