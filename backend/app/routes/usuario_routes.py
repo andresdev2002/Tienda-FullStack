@@ -202,9 +202,10 @@ def perfil(
 
         "nombre": usuario.nombre,
 
-        "email": usuario.email
-    }
+        "email": usuario.email,
 
+        "rol_id": usuario.rol_id
+    }
 # =========================================
 # SOLO ADMIN
 # =========================================
