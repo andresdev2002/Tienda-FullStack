@@ -1,5 +1,18 @@
-import { Drawer, List, ListItem, ListItemButton, ListItemText } from "@mui/material";
+import { useContext } from "react";
+
 import { Link } from "react-router-dom";
+
+import {
+    Drawer,
+    List,
+    ListItem,
+    ListItemButton,
+    ListItemText,
+    Typography,
+    Box
+} from "@mui/material";
+
+import { AuthContext } from "../../context/AuthContext";
 
 const menuItems = [
     {
@@ -29,6 +42,28 @@ const menuItems = [
 ];
 
     function Sidebar() {
+        const { usuario } = useContext(
+        AuthContext
+    );
+    let nombreRol = "";
+
+if (usuario?.rol_id === 1) {
+
+    nombreRol = "Administrador";
+
+}
+
+else if (usuario?.rol_id === 2) {
+
+    nombreRol = "Vendedor";
+
+}
+
+else if (usuario?.rol_id === 3) {
+
+    nombreRol = "Bodeguero";
+
+}
     return (
         <Drawer
         variant="permanent"
@@ -41,6 +76,25 @@ const menuItems = [
             },
         }}
         >
+
+        <Box sx={{ p: 2 }}>
+
+    <Typography variant="h6">
+
+        {usuario?.nombre || "Usuario"}
+
+    </Typography>
+
+    <Typography
+        variant="body2"
+        color="text.secondary"
+    >
+
+        Rol: {nombreRol}
+
+    </Typography>
+
+</Box>
 <List>
     {menuItems.map((item) => (
         <ListItem
