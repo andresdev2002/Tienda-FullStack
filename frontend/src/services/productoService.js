@@ -65,3 +65,25 @@ export const actualizarProducto = async (
     return response.data;
 };
 
+// =========================================
+// ELIMINAR PRODUCTO
+// =========================================
+
+export const eliminarProducto = async (
+    id,
+    token
+) => {
+
+    const response = await axios.delete(
+
+        `${API_URL}/${id}`,
+
+        {
+            headers: {
+                Authorization: `Bearer ${token}`
+            }
+        }
+    );
+
+    return response.data;
+};
