@@ -5,6 +5,7 @@ import Dashboard from "../pages/Dashboard";
 import Productos from "../pages/Productos";
 import Clientes from "../pages/Clientes";
 import Proveedores from "../pages/Proveedores";
+import Ventas from "../pages/Ventas";
 
 function AppRoutes() {
 
@@ -41,6 +42,11 @@ function AppRoutes() {
             <Route
                 path="/proveedores"
                 element={<Proveedores />}
+            />
+             {/* Ventas */}
+            <Route
+                path="/ventas"
+                element={<Ventas />}
             />
 
         </Routes>
