@@ -17,12 +17,51 @@ export const obtenerProductos = async () => {
 // CREAR PRODUCTO
 // =========================================
 
-export const crearProducto = async (producto) => {
+export const crearProducto = async (
+    producto,
+    token
+) => {
 
-  const response = await axios.post(
-    API_URL,
-    producto
-  );
+    const response = await axios.post(
 
-  return response.data;
+        API_URL,
+
+        producto,
+
+        {
+            headers: {
+                Authorization:
+                    `Bearer ${token}`
+            }
+        }
+    );
+
+    return response.data;
 };
+
+// =========================================
+// ACTUALIZAR PRODUCTO
+// =========================================
+
+export const actualizarProducto = async (
+    id,
+    datos,
+    token
+) => {
+
+    const response = await axios.put(
+
+        `${API_URL}/${id}`,
+
+        datos,
+
+        {
+            headers: {
+                Authorization: `Bearer ${token}`
+            }
+        }
+    );
+
+    return response.data;
+};
+
