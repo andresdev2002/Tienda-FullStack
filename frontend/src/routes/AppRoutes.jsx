@@ -3,6 +3,7 @@ import { Routes, Route } from "react-router-dom";
 import Login from "../pages/Login";
 import Dashboard from "../pages/Dashboard";
 import Productos from "../pages/Productos";
+import Clientes from "../pages/Clientes";
 
 function AppRoutes() {
 
@@ -10,24 +11,33 @@ function AppRoutes() {
 
         <Routes>
 
-        <Route
-            path="/"
-            element={<Login />}
-        />
+            {/* Login */}
+            <Route
+                path="/"
+                element={<Login />}
+            />
 
-        <Route
-            path="/dashboard"
-            element={<Dashboard />}
-        />
+            {/* Dashboard */}
+            <Route
+                path="/dashboard"
+                element={<Dashboard />}
+            />
 
-        <Route
-            path="/productos"
-            element={<Productos />}
-        />
+            {/* Productos */}
+            <Route
+                path="/productos"
+                element={<Productos />}
+            />
+
+            {/* Clientes */}
+            <Route
+                path="/clientes"
+                element={<Clientes />}
+            />
 
         </Routes>
 
     );
-    }
+}
 
 export default AppRoutes;
