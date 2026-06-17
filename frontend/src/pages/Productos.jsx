@@ -21,6 +21,13 @@ function Productos() {
   const [productos, setProductos] = useState([]);
   const [openModal, setOpenModal] = useState(false);
 
+  // =========================================
+// PRODUCTO SELECCIONADO
+// =========================================
+
+const [productoEditar, setProductoEditar] =
+    useState(null);
+
   useEffect(() => {
     cargarProductos();
   }, []);
@@ -48,7 +55,13 @@ function Productos() {
 <Button
   vButtonariant="contained"
   sx={{ mb: 2 }}
-  onClick={() => setOpenModal(true)}
+  onClick={() => {
+
+    setProductoEditar(null);
+
+    setOpenModal(true);
+
+}}
 >
   Nuevo Producto
 </Button>
@@ -66,6 +79,8 @@ function Productos() {
               <TableCell>Precio Venta</TableCell>
 
               <TableCell>Stock</TableCell>
+              
+              <TableCell>Acciones</TableCell>
 
             </TableRow>
 
@@ -94,6 +109,25 @@ function Productos() {
                 <TableCell>
                   {producto.stock_actual}
                 </TableCell>
+                <TableCell>
+
+                    <Button
+                        variant="outlined"
+                        size="small"
+                        onClick={() => {
+
+                            setProductoEditar(
+                                producto
+                            );
+
+                            setOpenModal(true);
+
+                        }}
+                    >
+                        Editar
+                    </Button>
+
+                </TableCell>
 
               </TableRow>
 
@@ -106,9 +140,10 @@ function Productos() {
       </Paper>
 
 <ModalProducto
-  open={openModal}
-  onClose={() => setOpenModal(false)}
-  onProductoCreado={cargarProductos}
+    open={openModal}
+    onClose={() => setOpenModal(false)}
+    productoEditar={productoEditar}
+    cargarProductos={cargarProductos}
 />
 
     </Layout>
