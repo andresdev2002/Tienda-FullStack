@@ -133,9 +133,16 @@ def crear_venta(
             "total": total_venta
         }
 
+    except HTTPException:
+            db.rollback()
+            raise
+
     except Exception as e:
-        db.rollback()
-        raise HTTPException(status_code=500, detail=str(e))
+            db.rollback()
+            raise HTTPException(
+                status_code=500,
+                detail=str(e)
+            )
 
 
 # =========================================
