@@ -1,155 +1,279 @@
-import { useEffect, useState } from "react";
-import { Button } from "@mui/material";
-import ModalProducto from "../components/productos/ModalProducto";
+import {
+    useEffect,
+    useState,
+    useContext
+} from "react";
 
 import {
-  Typography,
-  Paper,
-  Table,
-  TableHead,
-  TableBody,
-  TableRow,
-  TableCell
+    Typography,
+    Paper,
+    Table,
+    TableHead,
+    TableBody,
+    TableRow,
+    TableCell,
+    Button
 } from "@mui/material";
 
 import Layout from "../components/layout/Layout";
 
-import { obtenerProductos } from "../services/productoService";
+import ModalProducto from "../components/productos/ModalProducto";
+
+import {
+    obtenerProductos,
+    eliminarProducto
+} from "../services/productoService";
+
+import { AuthContext } from "../context/AuthContext";
 
 function Productos() {
 
-  const [productos, setProductos] = useState([]);
-  const [openModal, setOpenModal] = useState(false);
+    // =========================================
+    // CONTEXT AUTH
+    // =========================================
 
-  // =========================================
-// PRODUCTO SELECCIONADO
-// =========================================
+    const { token } = useContext(
+        AuthContext
+    );
 
-const [productoEditar, setProductoEditar] =
-    useState(null);
+    // =========================================
+    // ESTADOS
+    // =========================================
 
-  useEffect(() => {
-    cargarProductos();
-  }, []);
+    const [productos, setProductos] =
+        useState([]);
 
-  const cargarProductos = async () => {
-    try {
-      const data = await obtenerProductos();
-      setProductos(data);
-    } catch (error) {
-      console.error(error);
-    }
-  };
+    const [openModal, setOpenModal] =
+        useState(false);
 
-  return (
-    <Layout>
+    const [productoEditar, setProductoEditar] =
+        useState(null);
 
-      <Typography
-        variant="h4"
-        gutterBottom
-      >
-        Productos
-      </Typography>
+    // =========================================
+    // CARGAR PRODUCTOS
+    // =========================================
 
-    <Paper>
-<Button
-  vButtonariant="contained"
-  sx={{ mb: 2 }}
-  onClick={() => {
+    useEffect(() => {
 
-    setProductoEditar(null);
+        cargarProductos();
 
-    setOpenModal(true);
+    }, []);
 
-}}
->
-  Nuevo Producto
-</Button>
+    const cargarProductos = async () => {
 
-        <Table>
+        try {
 
-          <TableHead>
+            const data =
+                await obtenerProductos();
 
-            <TableRow>
+            setProductos(data);
 
-              <TableCell>ID</TableCell>
+        } catch (error) {
 
-              <TableCell>Nombre</TableCell>
+            console.error(error);
 
-              <TableCell>Precio Venta</TableCell>
+        }
+    };
 
-              <TableCell>Stock</TableCell>
-              
-              <TableCell>Acciones</TableCell>
+    // =========================================
+    // ELIMINAR PRODUCTO
+    // =========================================
 
-            </TableRow>
+    const eliminar = async (id) => {
 
-          </TableHead>
+        const confirmar = window.confirm(
+            "¿Desea eliminar este producto?"
+        );
 
-          <TableBody>
+        if (!confirmar) return;
 
-            {productos.map((producto) => (
+        try {
 
-              <TableRow
-                key={producto.id_producto}
-              >
+            await eliminarProducto(
+                id,
+                token
+            );
 
-                <TableCell>
-                  {producto.id_producto}
-                </TableCell>
+            cargarProductos();
 
-                <TableCell>
-                  {producto.nombre}
-                </TableCell>
+            alert(
+                "Producto eliminado correctamente"
+            );
 
-                <TableCell>
-                  {producto.precio_venta}
-                </TableCell>
+        } catch (error) {
 
-                <TableCell>
-                  {producto.stock_actual}
-                </TableCell>
-                <TableCell>
+            console.error(error);
 
-                    <Button
-                        variant="outlined"
-                        size="small"
-                        onClick={() => {
+            alert(
+                "Error al eliminar producto"
+            );
+        }
+    };
 
-                            setProductoEditar(
-                                producto
-                            );
+    return (
 
-                            setOpenModal(true);
+        <Layout>
 
-                        }}
-                    >
-                        Editar
-                    </Button>
+            <Typography
+                variant="h4"
+                gutterBottom
+            >
+                Productos
+            </Typography>
 
-                </TableCell>
+            <Paper sx={{ p: 2 }}>
 
-              </TableRow>
+                {/* =========================================
+                    BOTÓN NUEVO PRODUCTO
+                ========================================= */}
 
-            ))}
+                <Button
+                    variant="contained"
+                    sx={{ mb: 2 }}
+                    onClick={() => {
 
-          </TableBody>
+                        setProductoEditar(
+                            null
+                        );
 
-        </Table>
+                        setOpenModal(
+                            true
+                        );
 
-      </Paper>
+                    }}
+                >
+                    Nuevo Producto
+                </Button>
 
-<ModalProducto
-    open={openModal}
-    onClose={() => setOpenModal(false)}
-    productoEditar={productoEditar}
-    cargarProductos={cargarProductos}
-/>
+                {/* =========================================
+                    TABLA PRODUCTOS
+                ========================================= */}
 
-    </Layout>
-  );
+                <Table>
+
+                    <TableHead>
+
+                        <TableRow>
+
+                            <TableCell>
+                                ID
+                            </TableCell>
+
+                            <TableCell>
+                                Nombre
+                            </TableCell>
+
+                            <TableCell>
+                                Precio Venta
+                            </TableCell>
+
+                            <TableCell>
+                                Stock
+                            </TableCell>
+
+                            <TableCell>
+                                Acciones
+                            </TableCell>
+
+                        </TableRow>
+
+                    </TableHead>
+
+                    <TableBody>
+
+                        {productos.map(
+                            (producto) => (
+
+                            <TableRow
+                                key={
+                                    producto.id_producto
+                                }
+                            >
+
+                                <TableCell>
+                                    {producto.id_producto}
+                                </TableCell>
+
+                                <TableCell>
+                                    {producto.nombre}
+                                </TableCell>
+
+                                <TableCell>
+                                    {producto.precio_venta}
+                                </TableCell>
+
+                                <TableCell>
+                                    {producto.stock_actual}
+                                </TableCell>
+
+                                <TableCell>
+
+                                    {/* EDITAR */}
+
+                                    <Button
+                                        variant="outlined"
+                                        size="small"
+                                        sx={{ mr: 1 }}
+                                        onClick={() => {
+
+                                            setProductoEditar(
+                                                producto
+                                            );
+
+                                            setOpenModal(
+                                                true
+                                            );
+
+                                        }}
+                                    >
+                                        Editar
+                                    </Button>
+
+                                    {/* ELIMINAR */}
+
+                                    <Button
+                                        color="error"
+                                        size="small"
+                                        onClick={() =>
+                                            eliminar(
+                                                producto.id_producto
+                                            )
+                                        }
+                                    >
+                                        Eliminar
+                                    </Button>
+
+                                </TableCell>
+
+                            </TableRow>
+
+                        ))}
+
+                    </TableBody>
+
+                </Table>
+
+            </Paper>
+
+            {/* =========================================
+                MODAL PRODUCTOS
+            ========================================= */}
+
+            <ModalProducto
+                open={openModal}
+                onClose={() =>
+                    setOpenModal(false)
+                }
+                productoEditar={
+                    productoEditar
+                }
+                cargarProductos={
+                    cargarProductos
+                }
+            />
+
+        </Layout>
+    );
 }
-
-
 
 export default Productos;
