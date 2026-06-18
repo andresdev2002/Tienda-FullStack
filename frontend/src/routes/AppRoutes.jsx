@@ -8,6 +8,7 @@ import Proveedores from "../pages/Proveedores";
 import Ventas from "../pages/Ventas";
 import Inventario from "../pages/Inventario";
 import EntradaInventario from "../pages/EntradaInventario";
+import Kardex from "../pages/Kardex";
 
 function AppRoutes() {
 
@@ -63,6 +64,13 @@ function AppRoutes() {
                 path="/entradas"
                 element={<EntradaInventario />}
             />
+
+            {/*Kardex*/}
+            <Route
+                path="/kardex"
+                element={<Kardex />}
+            />
+            
         </Routes>
 
             
