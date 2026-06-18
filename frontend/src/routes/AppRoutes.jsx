@@ -6,6 +6,8 @@ import Productos from "../pages/Productos";
 import Clientes from "../pages/Clientes";
 import Proveedores from "../pages/Proveedores";
 import Ventas from "../pages/Ventas";
+import Inventario from "../pages/Inventario";
+import EntradaInventario from "../pages/EntradaInventario";
 
 function AppRoutes() {
 
@@ -49,6 +51,18 @@ function AppRoutes() {
                 element={<Ventas />}
             />
 
+             {/*Inventario */}
+
+            <Route
+                path="/inventario"
+                element={<Inventario />}
+            />
+            {/*Registro de entradas */}
+
+            <Route
+                path="/entradas"
+                element={<EntradaInventario />}
+            />
         </Routes>
 
             

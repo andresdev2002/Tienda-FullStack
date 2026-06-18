@@ -187,18 +187,36 @@ def crear_movimiento(
 # LISTAR MOVIMIENTOS
 # =========================================
 
-@router.get(
-    "/",
-    response_model=list[MovimientoInventarioResponse]
-)
+@router.get("/")
 def listar_movimientos(
-
     db: Session = Depends(get_db)
-
 ):
 
     movimientos = db.query(
         MovimientoInventario
     ).all()
 
-    return movimientos
+    return [
+
+        {
+            "id_movimiento":
+                movimiento.id_movimiento,
+
+            "producto":
+                movimiento.producto.nombre,
+
+            "tipo_movimiento":
+                movimiento.tipo_movimiento,
+
+            "cantidad":
+                movimiento.cantidad,
+
+            "observacion":
+                movimiento.observacion,
+
+            "fecha_movimiento":
+                movimiento.fecha_movimiento
+        }
+
+        for movimiento in movimientos
+    ]

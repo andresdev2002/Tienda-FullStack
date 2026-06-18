@@ -38,7 +38,12 @@ const menuItems = [
     {
         texto: "Inventario",
         ruta: "/inventario"
+    },
+    {
+        texto: "Entradas",
+        ruta: "/entradas"
     }
+    
 ];
 
     function Sidebar() {
