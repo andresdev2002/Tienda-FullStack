@@ -73,7 +73,7 @@ function Dashboard() {
 
         {cards.map((card) => (
 
-          <Grid item xs={12} md={4} key={card.titulo}>
+          <Grid xs={12} md={4} key={card.titulo}>
 
             <Card>
 
