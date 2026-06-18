@@ -42,8 +42,12 @@ const menuItems = [
     {
         texto: "Entradas",
         ruta: "/entradas"
+    },
+
+    {
+    texto: "Kardex",
+    ruta: "/kardex"
     }
-    
 ];
 
     function Sidebar() {
