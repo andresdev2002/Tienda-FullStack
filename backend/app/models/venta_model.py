@@ -4,6 +4,7 @@ from sqlalchemy import DECIMAL
 from sqlalchemy import ForeignKey
 from sqlalchemy import TIMESTAMP
 from sqlalchemy import Enum
+from sqlalchemy import String
 
 from sqlalchemy.sql import func
 
@@ -44,7 +45,11 @@ class Venta(Base):
             "NEQUI"
         )
     )
-
+# Estado de la venta
+    estado = Column(
+    String(20),
+    default="ACTIVA"
+)
     fecha_venta = Column(
         TIMESTAMP,
         server_default=func.now()

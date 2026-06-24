@@ -34,3 +34,25 @@ export const crearVenta = async (venta, token) => {
 
     return response.data;
 };
+
+//Devolución venta 
+export const devolverVenta = async (
+    idVenta,
+    token
+) => {
+
+    const response = await axios.post(
+
+        `http://127.0.0.1:8000/ventas/${idVenta}/devolver`,
+
+        {},
+
+        {
+            headers: {
+                Authorization: `Bearer ${token}`
+            }
+        }
+    );
+
+    return response.data;
+};

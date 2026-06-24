@@ -143,6 +143,8 @@ def crear_venta(
                 status_code=500,
                 detail=str(e)
             )
+    
+    
 
 
 # =========================================
@@ -161,7 +163,8 @@ def listar_ventas(db: Session = Depends(get_db)):
             "usuario_id": v.usuario_id,
             "metodo_pago": v.metodo_pago,
             "fecha_venta": v.fecha_venta,
-            "total": v.total
+            "total": v.total,
+            "estado": v.estado
         }
         for v in ventas
     ]
@@ -226,3 +229,87 @@ def detalle_venta(id_venta: int, db: Session = Depends(get_db)):
         "total": venta.total,
         "productos": productos
     }
+
+    #Devolución venta
+@router.post("/{id_venta}/devolver")
+def devolver_venta(
+    id_venta: int,
+
+                    db: Session = Depends(get_db),
+
+                    usuario = Depends(
+                        require_admin_or_vendedor
+                    )
+
+                ):
+
+                    venta = db.query(
+                        Venta
+                    ).filter(
+                        Venta.id_venta == id_venta
+                    ).first()
+
+                    if not venta:
+
+                        raise HTTPException(
+                            status_code=404,
+                            detail="Venta no encontrada"
+                        )
+# =========================================
+# VALIDAR SI YA FUE DEVUELTA
+# =========================================
+
+                    if venta.estado == "DEVUELTA":
+
+                        raise HTTPException(
+                            status_code=400,
+                            detail="La venta ya fue devuelta"
+                        )
+
+                    detalles = db.query(
+                        DetalleVenta
+                    ).filter(
+                        DetalleVenta.venta_id == id_venta
+                    ).all()
+
+                    for detalle in detalles:
+
+                        producto = db.query(
+                            Producto
+                        ).filter(
+                            Producto.id_producto ==
+                            detalle.producto_id
+                        ).first()
+                        #Devolver stock
+
+                        producto.stock_actual += (
+                            detalle.cantidad
+                        )
+
+                        movimiento = MovimientoInventario(
+
+                            producto_id=
+                                producto.id_producto,
+
+                            usuario_id=
+                                usuario.id_usuario,
+
+                            tipo_movimiento=
+                                "DEVOLUCION",
+
+                            cantidad=
+                                detalle.cantidad,
+
+                            observacion=
+                                f"Devolución Venta #{id_venta}"
+                        )
+
+                        db.add(movimiento)
+                    venta.estado = "DEVUELTA"
+                    db.commit()
+
+                    return {
+                        "message":
+                        "Devolución realizada correctamente"
+                    }
+    
