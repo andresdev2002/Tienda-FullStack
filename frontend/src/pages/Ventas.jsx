@@ -13,14 +13,23 @@ import { useEffect, useState } from "react";
 
 import Layout from "../components/layout/Layout";
 
-import {
-    obtenerVentas
-} from "../services/ventaService";
-
 import ModalVenta from
 "../components/ventas/ModalVenta";
 
+import {
+    obtenerVentas,
+    devolverVenta
+} from "../services/ventaService";
+
+import { useContext } from "react";
+
+import { AuthContext }
+from "../context/AuthContext";
+
 function Ventas() {
+
+    const { token } =
+    useContext(AuthContext);
 
     const [ventas, setVentas] =
         useState([]);
@@ -28,6 +37,33 @@ function Ventas() {
     const [openModal, setOpenModal] =
     useState(false);
 
+    //Función devolver
+
+const handleDevolver = async (
+        idVenta
+    ) => {
+
+        const confirmar =
+            window.confirm(
+                "¿Desea devolver esta venta?"
+            );
+
+        if (!confirmar) return;
+
+        try {
+
+            await devolverVenta(
+                idVenta,
+                token
+            );
+
+            cargarVentas();
+
+        } catch (error) {
+
+            console.error(error);
+        }
+    };
     useEffect(() => {
 
         cargarVentas();
@@ -45,20 +81,21 @@ function Ventas() {
 
         } catch (error) {
 
-            console.error(error);
-        }
+    console.error(error);
+
+    alert(
+
+        error.response?.data?.detail ||
+
+        "Error al devolver venta"
+    );
+}
     };
 
     return (
 
         <Layout>
-
-            <Typography
-                variant="h4"
-                gutterBottom
-            >
-                Ventas
-            </Typography>
+        
 
             <Paper sx={{ p: 2 }}>
                 <Button
@@ -93,6 +130,14 @@ function Ventas() {
                                 Total
                             </TableCell>
 
+                            <TableCell>
+                                Estado
+                            </TableCell>
+
+                            <TableCell>
+                                Acciones
+                            </TableCell>
+
                         </TableRow>
 
                     </TableHead>
@@ -119,6 +164,46 @@ function Ventas() {
 
                                 <TableCell>
                                     {venta.total}
+                                </TableCell>
+
+                                <TableCell>
+
+                                <Typography
+                                        color={
+                                            venta.estado === "DEVUELTA"
+                                                ? "error"
+                                                : "success"
+                                        }
+                                    >
+                                        {venta.estado}
+                                </Typography>
+
+                                </TableCell>
+                                
+                                <TableCell>
+
+                            <Button
+
+                                    color="warning"
+
+                                    variant="contained"
+
+                                    disabled={
+                                        venta.estado ===
+                                        "DEVUELTA"
+                                    }
+
+                                    onClick={() =>
+                                        handleDevolver(
+                                            venta.id_venta
+                                        )
+                                    }
+
+                                >
+
+                                    DEVOLVER
+
+                            </Button>
                                 </TableCell>
 
                             </TableRow>
