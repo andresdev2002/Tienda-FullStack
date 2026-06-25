@@ -1,6 +1,7 @@
 import {
     useEffect,
-    useState
+    useState,
+    useContext
 } from "react";
 
 import {
@@ -23,7 +24,11 @@ import {
     eliminarCliente
 } from "../services/clienteService";
 
+import { AuthContext } from "../context/AuthContext";
+
 function Clientes() {
+
+    const { token } = useContext(AuthContext);
 
     const [clientes, setClientes] =
         useState([]);
@@ -45,7 +50,7 @@ function Clientes() {
         try {
 
             const data =
-                await obtenerClientes();
+                await obtenerClientes(token);
 
             setClientes(data);
 
@@ -65,7 +70,7 @@ function Clientes() {
 
         try {
 
-            await eliminarCliente(id);
+            await eliminarCliente(id, token);
 
             cargarClientes();
 

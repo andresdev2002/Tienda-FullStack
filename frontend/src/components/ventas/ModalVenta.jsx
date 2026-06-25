@@ -79,10 +79,10 @@ const cargarDatos = async () => {
     try {
 
         const clientesData =
-            await obtenerClientes();
+            await obtenerClientes(token);
 
         const productosData =
-            await obtenerProductos();
+            await obtenerProductos(token);
 
         setClientes(clientesData);
 

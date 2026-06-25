@@ -9,6 +9,8 @@ from datetime import datetime, date
 
 from app.database import SessionLocal
 
+from app.dependencies.roles import require_admin_or_vendedor
+
 from app.models.venta_model import Venta
 from app.models.detalle_venta_model import DetalleVenta
 from app.models.producto_model import Producto
@@ -31,7 +33,10 @@ def get_db():
 #VENTAS HOY
 #==========================
 @router.get("/ventas-hoy")
-def ventas_hoy(db: Session = Depends(get_db)):
+def ventas_hoy(
+    db: Session = Depends(get_db),
+    usuario = Depends(require_admin_or_vendedor)
+):
 
     hoy = date.today()
 
@@ -51,7 +56,10 @@ def ventas_hoy(db: Session = Depends(get_db)):
 #VENTAS POR MES
 #==========================
 @router.get("/ventas-mes")
-def ventas_mes(db: Session = Depends(get_db)):
+def ventas_mes(
+    db: Session = Depends(get_db),
+    usuario = Depends(require_admin_or_vendedor)
+):
 
     mes_actual = datetime.now().month
     anio_actual = datetime.now().year
@@ -74,7 +82,10 @@ def ventas_mes(db: Session = Depends(get_db)):
 #PRODUCTOS MÁS VENDIDOS 
 #==========================
 @router.get("/top-productos")
-def top_productos(db: Session = Depends(get_db)):
+def top_productos(
+    db: Session = Depends(get_db),
+    usuario = Depends(require_admin_or_vendedor)
+):
 
     resultado = db.query(
         Producto.nombre,
@@ -96,7 +107,10 @@ def top_productos(db: Session = Depends(get_db)):
 #INGREOS TOTALES 
 #==========================
 @router.get("/ingresos-totales")
-def ingresos_totales(db: Session = Depends(get_db)):
+def ingresos_totales(
+    db: Session = Depends(get_db),
+    usuario = Depends(require_admin_or_vendedor)
+):
 
     total = db.query(func.sum(Venta.total)).scalar()
 
@@ -108,7 +122,10 @@ def ingresos_totales(db: Session = Depends(get_db)):
 #STOCK BAJO
 #==========================
 @router.get("/stock-bajo")
-def stock_bajo(db: Session = Depends(get_db)):
+def stock_bajo(
+    db: Session = Depends(get_db),
+    usuario = Depends(require_admin_or_vendedor)
+):
 
     productos = db.query(Producto).filter(
         Producto.stock_actual <= Producto.stock_minimo
@@ -128,7 +145,10 @@ def stock_bajo(db: Session = Depends(get_db)):
 #==========================
 
 @router.get("/movimientos")
-def movimientos(db: Session = Depends(get_db)):
+def movimientos(
+    db: Session = Depends(get_db),
+    usuario = Depends(require_admin_or_vendedor)
+):
 
     movimientos = db.query(MovimientoInventario).order_by(
         MovimientoInventario.fecha_movimiento.desc()

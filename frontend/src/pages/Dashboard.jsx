@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, useContext } from "react";
 
 import {
   Grid,
@@ -11,7 +11,11 @@ import Layout from "../components/layout/Layout";
 
 import { obtenerDashboard } from "../services/dashboardService";
 
+import { AuthContext } from "../context/AuthContext";
+
 function Dashboard() {
+
+  const { token } = useContext(AuthContext);
 
   const [dashboard, setDashboard] = useState(null);
 
@@ -21,7 +25,7 @@ function Dashboard() {
 
   const cargarDashboard = async () => {
     try {
-      const data = await obtenerDashboard();
+      const data = await obtenerDashboard(token);
       setDashboard(data);
     } catch (error) {
       console.error(error);

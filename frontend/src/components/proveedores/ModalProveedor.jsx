@@ -1,6 +1,7 @@
 import {
     useState,
-    useEffect
+    useEffect,
+    useContext
 } from "react";
 
 import {
@@ -17,6 +18,8 @@ import {
     actualizarProveedor
 } from "../../services/proveedorService";
 
+import { AuthContext } from "../../context/AuthContext";
+
 function ModalProveedor({
 
     open,
@@ -28,6 +31,8 @@ function ModalProveedor({
     cargarProveedores
 
 }) {
+
+    const { token } = useContext(AuthContext);
 
     // =========================================
     // FORMULARIO
@@ -114,7 +119,9 @@ function ModalProveedor({
 
                     proveedorEditar.id_proveedor,
 
-                    formData
+                    formData,
+
+                    token
                 );
 
                 alert(
@@ -124,7 +131,8 @@ function ModalProveedor({
             } else {
 
                 await crearProveedor(
-                    formData
+                    formData,
+                    token
                 );
 
                 alert(

@@ -6,10 +6,17 @@ const API_URL = "http://127.0.0.1:8000/clientes";
 // OBTENER CLIENTES
 // =========================================
 
-export const obtenerClientes = async () => {
+export const obtenerClientes = async (
+    token
+) => {
 
     const response = await axios.get(
-        API_URL
+        API_URL,
+        {
+            headers: {
+                Authorization: `Bearer ${token}`
+            }
+        }
     );
 
     return response.data;
@@ -20,12 +27,18 @@ export const obtenerClientes = async () => {
 // =========================================
 
 export const crearCliente = async (
-    cliente
+    cliente,
+    token
 ) => {
 
     const response = await axios.post(
         API_URL,
-        cliente
+        cliente,
+        {
+            headers: {
+                Authorization: `Bearer ${token}`
+            }
+        }
     );
 
     return response.data;
@@ -37,12 +50,18 @@ export const crearCliente = async (
 
 export const actualizarCliente = async (
     id,
-    cliente
+    cliente,
+    token
 ) => {
 
     const response = await axios.put(
         `${API_URL}/${id}`,
-        cliente
+        cliente,
+        {
+            headers: {
+                Authorization: `Bearer ${token}`
+            }
+        }
     );
 
     return response.data;
@@ -53,11 +72,17 @@ export const actualizarCliente = async (
 // =========================================
 
 export const eliminarCliente = async (
-    id
+    id,
+    token
 ) => {
 
     const response = await axios.delete(
-        `${API_URL}/${id}`
+        `${API_URL}/${id}`,
+        {
+            headers: {
+                Authorization: `Bearer ${token}`
+            }
+        }
     );
 
     return response.data;

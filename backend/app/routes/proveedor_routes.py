@@ -24,6 +24,11 @@ from app.database import SessionLocal
 
 from app.models.proveedor_model import Proveedor
 
+from app.dependencies.roles import (
+    require_admin,
+    require_admin_or_bodeguero
+)
+
 # =========================================
 # SCHEMAS
 # =========================================
@@ -68,7 +73,8 @@ def get_db():
 )
 def crear_proveedor(
     proveedor: ProveedorCreate,
-    db: Session = Depends(get_db)
+    db: Session = Depends(get_db),
+    usuario = Depends(require_admin_or_bodeguero)
 ):
 
     proveedor_existente = db.query(
@@ -112,7 +118,8 @@ def crear_proveedor(
     response_model=list[ProveedorResponse]
 )
 def listar_proveedores(
-    db: Session = Depends(get_db)
+    db: Session = Depends(get_db),
+    usuario = Depends(require_admin_or_bodeguero)
 ):
 
     proveedores = db.query(
@@ -131,7 +138,8 @@ def listar_proveedores(
 )
 def obtener_proveedor(
     id_proveedor: int,
-    db: Session = Depends(get_db)
+    db: Session = Depends(get_db),
+    usuario = Depends(require_admin_or_bodeguero)
 ):
 
     proveedor = db.query(
@@ -160,7 +168,8 @@ def obtener_proveedor(
 def actualizar_proveedor(
     id_proveedor: int,
     datos: ProveedorCreate,
-    db: Session = Depends(get_db)
+    db: Session = Depends(get_db),
+    usuario = Depends(require_admin_or_bodeguero)
 ):
 
     proveedor = db.query(
@@ -194,7 +203,8 @@ def actualizar_proveedor(
 @router.delete("/{id_proveedor}")
 def eliminar_proveedor(
     id_proveedor: int,
-    db: Session = Depends(get_db)
+    db: Session = Depends(get_db),
+    usuario = Depends(require_admin)
 ):
 
     proveedor = db.query(

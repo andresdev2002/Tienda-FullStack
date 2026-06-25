@@ -75,7 +75,7 @@ const handleDevolver = async (
         try {
 
             const data =
-                await obtenerVentas();
+                await obtenerVentas(token);
 
             setVentas(data);
 

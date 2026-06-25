@@ -70,7 +70,20 @@ const iniciarSesion = async () => {
 
         );
 
-        navigate("/dashboard");
+        // Cada rol cae en un módulo que sí puede
+        // ver. Bodeguero no tiene Dashboard en la
+        // matriz de permisos, así que mandarlo ahí
+        // y dejar que el guard lo rebote ya no
+        // hace falta - va directo a Productos.
+
+        if (perfil.rol_id === 3) {
+
+            navigate("/productos");
+
+        } else {
+
+            navigate("/dashboard");
+        }
 
     } catch (error) {
 

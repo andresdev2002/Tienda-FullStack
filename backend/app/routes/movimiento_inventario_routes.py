@@ -37,6 +37,8 @@ from app.schemas.movimiento_inventario_schema import (
     MovimientoInventarioResponse
 )
 
+from app.dependencies.roles import require_admin_or_bodeguero
+
 # =========================================
 # ROUTER
 # =========================================
@@ -76,7 +78,9 @@ def crear_movimiento(
     datos: MovimientoInventarioCreate,
 
     # Sesión de base de datos
-    db: Session = Depends(get_db)
+    db: Session = Depends(get_db),
+
+    usuario = Depends(require_admin_or_bodeguero)
 
 ):
 
@@ -158,7 +162,12 @@ def crear_movimiento(
 
         producto_id=datos.producto_id,
 
-        usuario_id=datos.usuario_id,
+        # No se usa datos.usuario_id: ese valor
+        # venía del cliente sin validar, lo que
+        # permitía atribuir el movimiento a
+        # cualquier usuario. Se usa el usuario
+        # autenticado del token.
+        usuario_id=usuario.id_usuario,
 
         tipo_movimiento=datos.tipo_movimiento,
 
@@ -189,7 +198,8 @@ def crear_movimiento(
 
 @router.get("/")
 def listar_movimientos(
-    db: Session = Depends(get_db)
+    db: Session = Depends(get_db),
+    usuario = Depends(require_admin_or_bodeguero)
 ):
 
     movimientos = db.query(

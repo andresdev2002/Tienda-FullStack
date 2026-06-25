@@ -87,7 +87,7 @@ async () => {
     try {
 
         const data =
-            await obtenerProductos();
+            await obtenerProductos(token);
 
         setProductos(data);
 

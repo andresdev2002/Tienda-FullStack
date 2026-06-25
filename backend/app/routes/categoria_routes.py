@@ -117,7 +117,9 @@ def crear_categoria(
 )
 def listar_categorias(
 
-    db: Session = Depends(get_db)
+    db: Session = Depends(get_db),
+
+    usuario = Depends(require_admin)
 
 ):
 
@@ -139,7 +141,9 @@ def obtener_categoria(
 
     id_categoria: int,
 
-    db: Session = Depends(get_db)
+    db: Session = Depends(get_db),
+
+    usuario = Depends(require_admin)
 
 ):
 
