@@ -9,6 +9,7 @@ import Ventas from "../pages/Ventas";
 import Inventario from "../pages/Inventario";
 import EntradaInventario from "../pages/EntradaInventario";
 import Kardex from "../pages/Kardex";
+import Usuarios from "../pages/Usuarios";
 
 function AppRoutes() {
 
@@ -69,6 +70,12 @@ function AppRoutes() {
             <Route
                 path="/kardex"
                 element={<Kardex />}
+            />
+
+            {/*Usuarios*/}
+            <Route
+                path="/usuarios"
+                element={<Usuarios />}
             />
             
         </Routes>

@@ -75,7 +75,7 @@ function ModalCliente({
             });
         }
 
-    }, [clienteEditar]);
+    }, [clienteEditar, open]);
 
     // =========================================
     // CAMBIOS INPUTS

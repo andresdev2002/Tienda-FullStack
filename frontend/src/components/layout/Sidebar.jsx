@@ -73,6 +73,20 @@ else if (usuario?.rol_id === 3) {
     nombreRol = "Bodeguero";
 
 }
+
+    // El módulo de Usuarios solo lo gestiona
+    // el Administrador (rol_id === 1). El resto
+    // de módulos todavía se muestra a todos los
+    // roles hasta que confirmemos la matriz de
+    // permisos completa.
+
+    const items = usuario?.rol_id === 1
+        ? [
+            ...menuItems,
+            { texto: "Usuarios", ruta: "/usuarios" }
+        ]
+        : menuItems;
+
     return (
         <Drawer
         variant="permanent"
@@ -105,7 +119,7 @@ else if (usuario?.rol_id === 3) {
 
 </Box>
 <List>
-    {menuItems.map((item) => (
+    {items.map((item) => (
         <ListItem
         key={item.texto}
         disablePadding

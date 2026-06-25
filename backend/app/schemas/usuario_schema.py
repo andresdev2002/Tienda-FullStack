@@ -40,6 +40,18 @@ class UsuarioResponse(BaseModel):
         from_attributes = True
 
 # =========================================
+# USUARIO UPDATE
+# =========================================
+
+class UsuarioUpdate(BaseModel):
+
+    nombre: str
+
+    email: EmailStr
+
+    rol_id: int
+
+# =========================================
 # LOGIN
 # =========================================
 
