@@ -1,6 +1,7 @@
 import {
     useEffect,
-    useState
+    useState,
+    useContext
 } from "react";
 
 import {
@@ -23,7 +24,11 @@ import {
     eliminarProveedor
 } from "../services/proveedorService";
 
+import { AuthContext } from "../context/AuthContext";
+
 function Proveedores() {
+
+    const { token } = useContext(AuthContext);
 
     // =========================================
     // ESTADOS
@@ -55,7 +60,7 @@ function Proveedores() {
         try {
 
             const data =
-                await obtenerProveedores();
+                await obtenerProveedores(token);
 
             setProveedores(data);
 
@@ -80,7 +85,7 @@ function Proveedores() {
 
         try {
 
-            await eliminarProveedor(id);
+            await eliminarProveedor(id, token);
 
             cargarProveedores();
 

@@ -1,6 +1,7 @@
 import {
     useState,
-    useEffect
+    useEffect,
+    useContext
 } from "react";
 
 import {
@@ -17,6 +18,8 @@ import {
     actualizarCliente
 } from "../../services/clienteService";
 
+import { AuthContext } from "../../context/AuthContext";
+
 function ModalCliente({
 
     open,
@@ -28,6 +31,8 @@ function ModalCliente({
     cargarClientes
 
 }) {
+
+    const { token } = useContext(AuthContext);
 
     // =========================================
     // ESTADO FORMULARIO
@@ -106,7 +111,9 @@ function ModalCliente({
 
                     clienteEditar.id_cliente,
 
-                    formData
+                    formData,
+
+                    token
                 );
 
                 alert(
@@ -116,7 +123,8 @@ function ModalCliente({
             } else {
 
                 await crearCliente(
-                    formData
+                    formData,
+                    token
                 );
 
                 alert(

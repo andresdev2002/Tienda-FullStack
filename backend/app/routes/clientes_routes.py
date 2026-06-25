@@ -5,6 +5,8 @@ from app.database import SessionLocal
 from app.models.cliente_model import Cliente
 from app.schemas.cliente_schema import ClienteCreate
 
+from app.dependencies.roles import require_admin_or_vendedor
+
 router = APIRouter(
     prefix="/clientes",
     tags=["Clientes"]
@@ -22,7 +24,11 @@ def get_db():
 #================================================
 
 @router.post("/")
-def crear_cliente(data: ClienteCreate, db: Session = Depends(get_db)):
+def crear_cliente(
+    data: ClienteCreate,
+    db: Session = Depends(get_db),
+    usuario = Depends(require_admin_or_vendedor)
+):
 
     cliente = Cliente(
         nombre=data.nombre,
@@ -42,7 +48,10 @@ def crear_cliente(data: ClienteCreate, db: Session = Depends(get_db)):
 #================================================
 
 @router.get("/")
-def listar_clientes(db: Session = Depends(get_db)):
+def listar_clientes(
+    db: Session = Depends(get_db),
+    usuario = Depends(require_admin_or_vendedor)
+):
 
     return db.query(Cliente).all()
 
@@ -51,7 +60,11 @@ def listar_clientes(db: Session = Depends(get_db)):
 #================================================
 
 @router.get("/{id_cliente}")
-def obtener_cliente(id_cliente: int, db: Session = Depends(get_db)):
+def obtener_cliente(
+    id_cliente: int,
+    db: Session = Depends(get_db),
+    usuario = Depends(require_admin_or_vendedor)
+):
 
     cliente = db.query(Cliente).filter(
         Cliente.id_cliente == id_cliente
@@ -67,7 +80,12 @@ def obtener_cliente(id_cliente: int, db: Session = Depends(get_db)):
 #================================================
 
 @router.put("/{id_cliente}")
-def actualizar_cliente(id_cliente: int, data: ClienteCreate, db: Session = Depends(get_db)):
+def actualizar_cliente(
+    id_cliente: int,
+    data: ClienteCreate,
+    db: Session = Depends(get_db),
+    usuario = Depends(require_admin_or_vendedor)
+):
 
     cliente = db.query(Cliente).filter(
         Cliente.id_cliente == id_cliente
@@ -91,7 +109,11 @@ def actualizar_cliente(id_cliente: int, data: ClienteCreate, db: Session = Depen
 #================================================
 
 @router.delete("/{id_cliente}")
-def eliminar_cliente(id_cliente: int, db: Session = Depends(get_db)):
+def eliminar_cliente(
+    id_cliente: int,
+    db: Session = Depends(get_db),
+    usuario = Depends(require_admin_or_vendedor)
+):
 
     cliente = db.query(Cliente).filter(
         Cliente.id_cliente == id_cliente

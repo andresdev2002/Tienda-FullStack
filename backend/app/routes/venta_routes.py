@@ -152,7 +152,10 @@ def crear_venta(
 # =========================================
 
 @router.get("/")
-def listar_ventas(db: Session = Depends(get_db)):
+def listar_ventas(
+    db: Session = Depends(get_db),
+    usuario = Depends(require_admin_or_vendedor)
+):
 
     ventas = db.query(Venta).all()
 
@@ -175,7 +178,11 @@ def listar_ventas(db: Session = Depends(get_db)):
 # =========================================
 
 @router.get("/{id_venta}")
-def obtener_venta(id_venta: int, db: Session = Depends(get_db)):
+def obtener_venta(
+    id_venta: int,
+    db: Session = Depends(get_db),
+    usuario = Depends(require_admin_or_vendedor)
+):
 
     venta = db.query(Venta).filter(
         Venta.id_venta == id_venta
@@ -199,7 +206,11 @@ def obtener_venta(id_venta: int, db: Session = Depends(get_db)):
 # =========================================
 
 @router.get("/{id_venta}/detalle")
-def detalle_venta(id_venta: int, db: Session = Depends(get_db)):
+def detalle_venta(
+    id_venta: int,
+    db: Session = Depends(get_db),
+    usuario = Depends(require_admin_or_vendedor)
+):
 
     venta = db.query(Venta).filter(
         Venta.id_venta == id_venta

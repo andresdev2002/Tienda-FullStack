@@ -1,6 +1,6 @@
 import { useContext } from "react";
 
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 
 import {
     Drawer,
@@ -9,51 +9,89 @@ import {
     ListItemButton,
     ListItemText,
     Typography,
-    Box
+    Box,
+    Button,
+    Divider
 } from "@mui/material";
 
+import LogoutIcon from "@mui/icons-material/Logout";
+
 import { AuthContext } from "../../context/AuthContext";
+
+// Roles permitidos por módulo, según la matriz:
+// 1 = Administrador, 2 = Vendedor, 3 = Bodeguero
 
 const menuItems = [
     {
         texto: "Dashboard",
-        ruta: "/dashboard"
+        ruta: "/dashboard",
+        roles: [1, 2]
     },
     {
         texto: "Productos",
-        ruta: "/productos"
+        ruta: "/productos",
+        roles: [1, 2, 3]
     },
     {
         texto: "Clientes",
-        ruta: "/clientes"
+        ruta: "/clientes",
+        roles: [1, 2]
     },
     {
         texto: "Proveedores",
-        ruta: "/proveedores"
+        ruta: "/proveedores",
+        roles: [1, 3]
     },
     {
         texto: "Ventas",
-        ruta: "/ventas"
+        ruta: "/ventas",
+        roles: [1, 2]
     },
     {
         texto: "Inventario",
-        ruta: "/inventario"
+        ruta: "/inventario",
+        roles: [1, 3]
     },
     {
         texto: "Entradas",
-        ruta: "/entradas"
+        ruta: "/entradas",
+        roles: [1, 3]
     },
 
     {
     texto: "Kardex",
-    ruta: "/kardex"
+    ruta: "/kardex",
+    roles: [1, 3]
+    },
+
+    {
+        texto: "Usuarios",
+        ruta: "/usuarios",
+        roles: [1]
     }
 ];
 
     function Sidebar() {
-        const { usuario } = useContext(
+        const { usuario, logout } = useContext(
         AuthContext
     );
+
+    const navigate = useNavigate();
+
+    // =========================================
+    // CERRAR SESIÓN
+    // =========================================
+    // logout() ya existía en AuthContext (limpia
+    // localStorage y el estado), solo faltaba el
+    // botón que lo llamara y redirigiera a /login.
+
+    const handleLogout = () => {
+
+        logout();
+
+        navigate("/");
+    };
+
     let nombreRol = "";
 
 if (usuario?.rol_id === 1) {
@@ -74,18 +112,14 @@ else if (usuario?.rol_id === 3) {
 
 }
 
-    // El módulo de Usuarios solo lo gestiona
-    // el Administrador (rol_id === 1). El resto
-    // de módulos todavía se muestra a todos los
-    // roles hasta que confirmemos la matriz de
-    // permisos completa.
+    // Cada item del menú declara qué roles pueden
+    // verlo. Esto refleja la matriz de permisos del
+    // backend; si un módulo no aparece aquí para un
+    // rol, tampoco debería estar accesible por API.
 
-    const items = usuario?.rol_id === 1
-        ? [
-            ...menuItems,
-            { texto: "Usuarios", ruta: "/usuarios" }
-        ]
-        : menuItems;
+    const items = menuItems.filter((item) =>
+        item.roles.includes(usuario?.rol_id)
+    );
 
     return (
         <Drawer
@@ -98,6 +132,14 @@ else if (usuario?.rol_id === 3) {
             boxSizing: "border-box",
             },
         }}
+        >
+
+        <Box
+            sx={{
+                display: "flex",
+                flexDirection: "column",
+                height: "100%"
+            }}
         >
 
         <Box sx={{ p: 2 }}>
@@ -118,7 +160,7 @@ else if (usuario?.rol_id === 3) {
     </Typography>
 
 </Box>
-<List>
+<List sx={{ flexGrow: 1 }}>
     {items.map((item) => (
         <ListItem
         key={item.texto}
@@ -135,6 +177,24 @@ else if (usuario?.rol_id === 3) {
         </ListItem>
     ))}
 </List>
+
+<Divider />
+
+<Box sx={{ p: 2 }}>
+
+    <Button
+        fullWidth
+        variant="outlined"
+        color="error"
+        startIcon={<LogoutIcon />}
+        onClick={handleLogout}
+    >
+        Cerrar sesión
+    </Button>
+
+</Box>
+
+        </Box>
         </Drawer>
     );
     }

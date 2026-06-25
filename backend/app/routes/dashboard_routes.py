@@ -10,6 +10,8 @@ from datetime import datetime
 
 from app.database import SessionLocal
 
+from app.dependencies.roles import require_admin_or_vendedor
+
 from app.models.producto_model import Producto
 from app.models.cliente_model import Cliente
 from app.models.proveedor_model import Proveedor
@@ -42,7 +44,9 @@ def get_db():
 @router.get("/")
 def dashboard(
 
-    db: Session = Depends(get_db)
+    db: Session = Depends(get_db),
+
+    usuario = Depends(require_admin_or_vendedor)
 
 ):
 

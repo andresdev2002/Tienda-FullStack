@@ -29,6 +29,7 @@ from app.models.categoria_model import Categoria
 from app.models.proveedor_model import Proveedor
 
 from app.dependencies.roles import require_admin
+from app.dependencies.auth import get_current_user
 
 # =========================================
 # SCHEMAS
@@ -155,7 +156,8 @@ def crear_producto(
     response_model=list[ProductoResponse]
 )
 def listar_productos(
-    db: Session = Depends(get_db)
+    db: Session = Depends(get_db),
+    usuario = Depends(get_current_user)
 ):
 
     productos = db.query(
@@ -174,7 +176,8 @@ def listar_productos(
 )
 def obtener_producto(
     id_producto: int,
-    db: Session = Depends(get_db)
+    db: Session = Depends(get_db),
+    usuario = Depends(get_current_user)
 ):
 
     producto = db.query(

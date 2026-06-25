@@ -6,9 +6,18 @@ const API_URL = "http://127.0.0.1:8000/productos";
 // OBTENER PRODUCTOS
 // =========================================
 
-export const obtenerProductos = async () => {
+export const obtenerProductos = async (
+    token
+) => {
 
-  const response = await axios.get(API_URL);
+  const response = await axios.get(
+    API_URL,
+    {
+        headers: {
+            Authorization: `Bearer ${token}`
+        }
+    }
+  );
 
   return response.data;
 };
