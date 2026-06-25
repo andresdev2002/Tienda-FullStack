@@ -95,7 +95,7 @@ function ModalProducto({
             );
         }
 
-    }, [productoEditar]);
+    }, [productoEditar, open]);
 
     // =========================================
     // ACTUALIZAR CAMPOS

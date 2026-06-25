@@ -82,7 +82,7 @@ function ModalProveedor({
             });
         }
 
-    }, [proveedorEditar]);
+    }, [proveedorEditar, open]);
 
     // =========================================
     // ACTUALIZAR INPUTS

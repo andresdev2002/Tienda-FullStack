@@ -30,6 +30,7 @@ from app.models.usuario_model import Usuario
 
 from app.schemas.usuario_schema import (
     UsuarioCreate,
+    UsuarioUpdate,
     UsuarioResponse,
     LoginRequest,
     TokenResponse
@@ -90,7 +91,9 @@ def crear_usuario(
 
     usuario: UsuarioCreate,
 
-    db: Session = Depends(get_db)
+    db: Session = Depends(get_db),
+
+    admin = Depends(require_admin)
 
 ):
 
@@ -169,6 +172,13 @@ def login(
             detail="Credenciales incorrectas"
         )
 
+    if not usuario.estado:
+
+        raise HTTPException(
+            status_code=403,
+            detail="Usuario inactivo. Contacta a un administrador"
+        )
+
     token = create_access_token({
 
         "sub": usuario.email,
@@ -223,3 +233,147 @@ def solo_admin(
 
         "usuario": usuario.nombre
     }
+
+# =========================================
+# LISTAR USUARIOS
+# =========================================
+
+@router.get(
+    "/",
+    response_model=list[UsuarioResponse]
+)
+def listar_usuarios(
+
+    db: Session = Depends(get_db),
+
+    admin = Depends(require_admin)
+
+):
+
+    return db.query(Usuario).all()
+
+# =========================================
+# OBTENER UN USUARIO
+# =========================================
+
+@router.get(
+    "/{id_usuario}",
+    response_model=UsuarioResponse
+)
+def obtener_usuario(
+
+    id_usuario: int,
+
+    db: Session = Depends(get_db),
+
+    admin = Depends(require_admin)
+
+):
+
+    usuario = db.query(Usuario).filter(
+        Usuario.id_usuario == id_usuario
+    ).first()
+
+    if not usuario:
+
+        raise HTTPException(
+            status_code=404,
+            detail="Usuario no encontrado"
+        )
+
+    return usuario
+
+# =========================================
+# ACTUALIZAR USUARIO
+# =========================================
+
+@router.put(
+    "/{id_usuario}",
+    response_model=UsuarioResponse
+)
+def actualizar_usuario(
+
+    id_usuario: int,
+
+    datos: UsuarioUpdate,
+
+    db: Session = Depends(get_db),
+
+    admin = Depends(require_admin)
+
+):
+
+    usuario = db.query(Usuario).filter(
+        Usuario.id_usuario == id_usuario
+    ).first()
+
+    if not usuario:
+
+        raise HTTPException(
+            status_code=404,
+            detail="Usuario no encontrado"
+        )
+
+    email_existente = db.query(Usuario).filter(
+        Usuario.email == datos.email,
+        Usuario.id_usuario != id_usuario
+    ).first()
+
+    if email_existente:
+
+        raise HTTPException(
+            status_code=400,
+            detail="El email ya está en uso por otro usuario"
+        )
+
+    usuario.nombre = datos.nombre
+    usuario.email = datos.email
+    usuario.rol_id = datos.rol_id
+
+    db.commit()
+    db.refresh(usuario)
+
+    return usuario
+
+# =========================================
+# ACTIVAR / DESACTIVAR USUARIO
+# =========================================
+
+@router.patch(
+    "/{id_usuario}/estado",
+    response_model=UsuarioResponse
+)
+def cambiar_estado_usuario(
+
+    id_usuario: int,
+
+    db: Session = Depends(get_db),
+
+    admin = Depends(require_admin)
+
+):
+
+    usuario = db.query(Usuario).filter(
+        Usuario.id_usuario == id_usuario
+    ).first()
+
+    if not usuario:
+
+        raise HTTPException(
+            status_code=404,
+            detail="Usuario no encontrado"
+        )
+
+    if usuario.id_usuario == admin.id_usuario:
+
+        raise HTTPException(
+            status_code=400,
+            detail="No puedes desactivar tu propio usuario"
+        )
+
+    usuario.estado = not usuario.estado
+
+    db.commit()
+    db.refresh(usuario)
+
+    return usuario
