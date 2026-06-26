@@ -6,21 +6,26 @@ import { BrowserRouter } from "react-router-dom";
 import App from "./App";
 
 import { AuthProvider } from "./context/AuthContext";
+import { ThemeModeProvider } from "./theme/ThemeModeContext";
 
 ReactDOM.createRoot(
   document.getElementById("root")
 ).render(
   <React.StrictMode>
 
-    <AuthProvider>
+    <ThemeModeProvider>
 
-      <BrowserRouter>
+      <AuthProvider>
 
-        <App />
+        <BrowserRouter>
 
-      </BrowserRouter>
+          <App />
 
-    </AuthProvider>
+        </BrowserRouter>
+
+      </AuthProvider>
+
+    </ThemeModeProvider>
 
   </React.StrictMode>
 );

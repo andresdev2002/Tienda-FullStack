@@ -1,121 +1,29 @@
 import { useContext } from "react";
 
-import { Link, useNavigate } from "react-router-dom";
+import { Link, useLocation } from "react-router-dom";
 
 import {
     Drawer,
     List,
     ListItem,
     ListItemButton,
+    ListItemIcon,
     ListItemText,
     Typography,
     Box,
-    Button,
     Divider
 } from "@mui/material";
 
-import LogoutIcon from "@mui/icons-material/Logout";
-
 import { AuthContext } from "../../context/AuthContext";
+import { menuItems } from "../../config/navigation";
 
-// Roles permitidos por módulo, según la matriz:
-// 1 = Administrador, 2 = Vendedor, 3 = Bodeguero
+const ANCHO_SIDEBAR = 248;
 
-const menuItems = [
-    {
-        texto: "Dashboard",
-        ruta: "/dashboard",
-        roles: [1, 2]
-    },
-    {
-        texto: "Reportes",
-        ruta: "/reportes",
-        roles: [1, 2]
-    },
-    {
-        texto: "Productos",
-        ruta: "/productos",
-        roles: [1, 2, 3]
-    },
-    {
-        texto: "Clientes",
-        ruta: "/clientes",
-        roles: [1, 2]
-    },
-    {
-        texto: "Proveedores",
-        ruta: "/proveedores",
-        roles: [1, 3]
-    },
-    {
-        texto: "Ventas",
-        ruta: "/ventas",
-        roles: [1, 2]
-    },
-    {
-        texto: "Inventario",
-        ruta: "/inventario",
-        roles: [1, 3]
-    },
-    {
-        texto: "Entradas",
-        ruta: "/entradas",
-        roles: [1, 3]
-    },
+function Sidebar({ mobileOpen, onClose }) {
 
-    {
-    texto: "Kardex",
-    ruta: "/kardex",
-    roles: [1, 3]
-    },
+    const { usuario } = useContext(AuthContext);
 
-    {
-        texto: "Usuarios",
-        ruta: "/usuarios",
-        roles: [1]
-    }
-];
-
-    function Sidebar() {
-        const { usuario, logout } = useContext(
-        AuthContext
-    );
-
-    const navigate = useNavigate();
-
-    // =========================================
-    // CERRAR SESIÓN
-    // =========================================
-    // logout() ya existía en AuthContext (limpia
-    // localStorage y el estado), solo faltaba el
-    // botón que lo llamara y redirigiera a /login.
-
-    const handleLogout = () => {
-
-        logout();
-
-        navigate("/");
-    };
-
-    let nombreRol = "";
-
-if (usuario?.rol_id === 1) {
-
-    nombreRol = "Administrador";
-
-}
-
-else if (usuario?.rol_id === 2) {
-
-    nombreRol = "Vendedor";
-
-}
-
-else if (usuario?.rol_id === 3) {
-
-    nombreRol = "Bodeguero";
-
-}
+    const location = useLocation();
 
     // Cada item del menú declara qué roles pueden
     // verlo. Esto refleja la matriz de permisos del
@@ -126,18 +34,7 @@ else if (usuario?.rol_id === 3) {
         item.roles.includes(usuario?.rol_id)
     );
 
-    return (
-        <Drawer
-        variant="permanent"
-        sx={{
-            width: 240,
-            flexShrink: 0,
-            "& .MuiDrawer-paper": {
-            width: 240,
-            boxSizing: "border-box",
-            },
-        }}
-        >
+    const contenido = (
 
         <Box
             sx={{
@@ -147,61 +44,144 @@ else if (usuario?.rol_id === 3) {
             }}
         >
 
-        <Box sx={{ p: 2 }}>
+            <Box sx={{ px: 3, py: 3 }}>
 
-    <Typography variant="h6">
+                <Typography
+                    variant="h6"
+                    sx={{ fontWeight: 800 }}
+                >
+                    Sistema Inventario
+                </Typography>
 
-        {usuario?.nombre || "Usuario"}
+            </Box>
 
-    </Typography>
+            <Divider />
 
-    <Typography
-        variant="body2"
-        color="text.secondary"
-    >
+            <List sx={{ flexGrow: 1, px: 2, py: 2 }}>
 
-        Rol: {nombreRol}
+                {items.map((item) => {
 
-    </Typography>
+                    const activo =
+                        location.pathname === item.ruta;
 
-</Box>
-<List sx={{ flexGrow: 1 }}>
-    {items.map((item) => (
-        <ListItem
-        key={item.texto}
-        disablePadding
-        >
-        <ListItemButton
-            component={Link}
-            to={item.ruta}
-        >
-            <ListItemText
-            primary={item.texto}
-            />
-        </ListItemButton>
-        </ListItem>
-    ))}
-</List>
+                    const Icono = item.icono;
 
-<Divider />
+                    return (
 
-<Box sx={{ p: 2 }}>
+                        <ListItem
+                            key={item.texto}
+                            disablePadding
+                            sx={{ mb: 0.5 }}
+                        >
+                            <ListItemButton
+                                component={Link}
+                                to={item.ruta}
+                                onClick={onClose}
+                                selected={activo}
+                                sx={{
+                                    borderRadius: 2,
+                                    py: 1,
 
-    <Button
-        fullWidth
-        variant="outlined"
-        color="error"
-        startIcon={<LogoutIcon />}
-        onClick={handleLogout}
-    >
-        Cerrar sesión
-    </Button>
+                                    "&.Mui-selected": {
+                                        backgroundColor:
+                                            "primary.main",
 
-</Box>
+                                        color:
+                                            "primary.contrastText",
+
+                                        "&:hover": {
+                                            backgroundColor:
+                                                "primary.dark"
+                                        },
+
+                                        "& .MuiListItemIcon-root": {
+                                            color:
+                                                "primary.contrastText"
+                                        }
+                                    },
+
+                                    "&:hover": {
+                                        backgroundColor: activo
+                                            ? undefined
+                                            : "action.hover"
+                                    }
+                                }}
+                            >
+                                <ListItemIcon
+                                    sx={{
+                                        minWidth: 36,
+                                        color: activo
+                                            ? undefined
+                                            : "text.secondary"
+                                    }}
+                                >
+                                    <Icono fontSize="small" />
+                                </ListItemIcon>
+
+                                <ListItemText
+                                    primary={item.texto}
+                                    primaryTypographyProps={{
+                                        fontSize: "0.9rem",
+                                        fontWeight: activo
+                                            ? 600
+                                            : 500
+                                    }}
+                                />
+                            </ListItemButton>
+                        </ListItem>
+                    );
+                })}
+
+            </List>
 
         </Box>
-        </Drawer>
     );
-    }
+
+    return (
+        <>
+            {/* Sidebar fija en desktop */}
+            <Drawer
+                variant="permanent"
+                sx={{
+                    width: ANCHO_SIDEBAR,
+                    flexShrink: 0,
+                    display: {
+                        xs: "none",
+                        md: "block"
+                    },
+                    "& .MuiDrawer-paper": {
+                        width: ANCHO_SIDEBAR,
+                        boxSizing: "border-box",
+                        borderRight: "1px solid",
+                        borderColor: "divider"
+                    }
+                }}
+            >
+                {contenido}
+            </Drawer>
+
+            {/* Menú hamburguesa en mobile/tablet */}
+            <Drawer
+                variant="temporary"
+                open={mobileOpen}
+                onClose={onClose}
+                ModalProps={{ keepMounted: true }}
+                sx={{
+                    display: {
+                        xs: "block",
+                        md: "none"
+                    },
+                    "& .MuiDrawer-paper": {
+                        width: ANCHO_SIDEBAR,
+                        boxSizing: "border-box"
+                    }
+                }}
+            >
+                {contenido}
+            </Drawer>
+        </>
+    );
+}
 
 export default Sidebar;
+export { ANCHO_SIDEBAR };
