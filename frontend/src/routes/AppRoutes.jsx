@@ -2,6 +2,7 @@ import { Routes, Route } from "react-router-dom";
 
 import Login from "../pages/Login";
 import Dashboard from "../pages/Dashboard";
+import Reportes from "../pages/Reportes";
 import Productos from "../pages/Productos";
 import Clientes from "../pages/Clientes";
 import Proveedores from "../pages/Proveedores";
@@ -35,6 +36,16 @@ function AppRoutes() {
                 element={
                     <RutaProtegida rolesPermitidos={[1, 2]}>
                         <Dashboard />
+                    </RutaProtegida>
+                }
+            />
+
+            {/* Reportes */}
+            <Route
+                path="/reportes"
+                element={
+                    <RutaProtegida rolesPermitidos={[1, 2]}>
+                        <Reportes />
                     </RutaProtegida>
                 }
             />

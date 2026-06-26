@@ -2,8 +2,6 @@ import { useEffect, useState, useContext } from "react";
 
 import {
   Grid,
-  Card,
-  CardContent,
   Typography
 } from "@mui/material";
 
@@ -12,6 +10,11 @@ import Layout from "../components/layout/Layout";
 import { obtenerDashboard } from "../services/dashboardService";
 
 import { AuthContext } from "../context/AuthContext";
+
+import KpiCard from "../components/dashboard/KpiCard";
+import TopProductos from "../components/dashboard/TopProductos";
+import UltimasVentas from "../components/dashboard/UltimasVentas";
+import VentasPorDia from "../components/dashboard/VentasPorDia";
 
 function Dashboard() {
 
@@ -79,27 +82,41 @@ function Dashboard() {
 
           <Grid xs={12} md={4} key={card.titulo}>
 
-            <Card>
-
-              <CardContent>
-
-                <Typography
-                  color="text.secondary"
-                >
-                  {card.titulo}
-                </Typography>
-
-                <Typography variant="h4">
-                  {card.valor}
-                </Typography>
-
-              </CardContent>
-
-            </Card>
+            <KpiCard
+              titulo={card.titulo}
+              valor={card.valor}
+            />
 
           </Grid>
 
         ))}
+
+      </Grid>
+
+      {/* =========================================
+          DATOS QUE EL BACKEND YA CALCULABA Y EL
+          FRONTEND NUNCA MOSTRABA
+          ========================================= */}
+
+      <Grid container spacing={3} sx={{ mt: 3 }}>
+
+        <Grid xs={12} md={6}>
+          <TopProductos
+            productos={dashboard.top_productos}
+          />
+        </Grid>
+
+        <Grid xs={12} md={6}>
+          <VentasPorDia
+            ventas={dashboard.ventas_por_dia}
+          />
+        </Grid>
+
+        <Grid xs={12}>
+          <UltimasVentas
+            ventas={dashboard.ultimas_ventas}
+          />
+        </Grid>
 
       </Grid>
 

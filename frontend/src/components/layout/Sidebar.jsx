@@ -28,6 +28,11 @@ const menuItems = [
         roles: [1, 2]
     },
     {
+        texto: "Reportes",
+        ruta: "/reportes",
+        roles: [1, 2]
+    },
+    {
         texto: "Productos",
         ruta: "/productos",
         roles: [1, 2, 3]
