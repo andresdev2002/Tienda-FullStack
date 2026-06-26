@@ -62,7 +62,8 @@ def dashboard(
     ventas_hoy_lista = db.query(
         Venta
     ).filter(
-        func.date(Venta.fecha_venta) == hoy
+        func.date(Venta.fecha_venta) == hoy,
+        Venta.estado != "DEVUELTA"
     ).all()
 
     ventas_hoy = len(ventas_hoy_lista)
@@ -80,7 +81,8 @@ def dashboard(
         Venta
     ).filter(
         extract("month", Venta.fecha_venta) == mes_actual,
-        extract("year", Venta.fecha_venta) == anio_actual
+        extract("year", Venta.fecha_venta) == anio_actual,
+        Venta.estado != "DEVUELTA"
     ).all()
 
     ventas_mes = len(
@@ -131,6 +133,12 @@ def dashboard(
         DetalleVenta,
         Producto.id_producto ==
         DetalleVenta.producto_id
+    ).join(
+        Venta,
+        Venta.id_venta ==
+        DetalleVenta.venta_id
+    ).filter(
+        Venta.estado != "DEVUELTA"
     ).group_by(
         Producto.nombre
     ).order_by(
@@ -178,6 +186,9 @@ def dashboard(
             "total":
             float(venta.total),
 
+            "estado":
+            venta.estado,
+
             "fecha":
             venta.fecha_venta
         })
@@ -203,7 +214,9 @@ def dashboard(
         extract(
             "year",
             Venta.fecha_venta
-        ) == anio_actual
+        ) == anio_actual,
+
+        Venta.estado != "DEVUELTA"
     ).all()
 
     for detalle in detalles_mes:
@@ -237,6 +250,10 @@ def dashboard(
         func.sum(
             Venta.total
         ).label("ventas")
+
+    ).filter(
+
+        Venta.estado != "DEVUELTA"
 
     ).group_by(
 

@@ -141,6 +141,88 @@ def stock_bajo(
     ]
 
 #==========================
+#GANANCIAS TOTALES
+#==========================
+# Ganancia = ingreso de venta - costo del producto.
+# Solo se cuentan ventas con estado distinto de
+# "DEVUELTA": una venta devuelta no debería sumar
+# a la ganancia, porque el dinero y el producto
+# volvieron. (Nota: el costo usado es el
+# precio_compra ACTUAL del producto, no el que
+# tenía en el momento exacto de cada venta -  si
+# los costos cambian con el tiempo, esto es una
+# aproximación, igual que utilidad_mes en el
+# dashboard.)
+
+@router.get("/ganancias")
+def ganancias_totales(
+    db: Session = Depends(get_db),
+    usuario = Depends(require_admin_or_vendedor)
+):
+
+    detalles = db.query(DetalleVenta).join(
+        Venta, Venta.id_venta == DetalleVenta.venta_id
+    ).filter(
+        Venta.estado != "DEVUELTA"
+    ).all()
+
+    ingresos_totales = 0.0
+    costos_totales = 0.0
+    por_producto = {}
+
+    for detalle in detalles:
+
+        producto = detalle.producto
+
+        if not producto:
+            continue
+
+        ingreso = float(detalle.subtotal)
+        costo = float(producto.precio_compra) * detalle.cantidad
+
+        ingresos_totales += ingreso
+        costos_totales += costo
+
+        if producto.nombre not in por_producto:
+
+            por_producto[producto.nombre] = {
+                "producto": producto.nombre,
+                "unidades_vendidas": 0,
+                "ingresos": 0.0,
+                "costos": 0.0
+            }
+
+        por_producto[producto.nombre]["unidades_vendidas"] += detalle.cantidad
+        por_producto[producto.nombre]["ingresos"] += ingreso
+        por_producto[producto.nombre]["costos"] += costo
+
+    detalle_por_producto = []
+
+    for item in por_producto.values():
+
+        item["ingresos"] = round(item["ingresos"], 2)
+        item["costos"] = round(item["costos"], 2)
+        item["ganancia"] = round(
+            item["ingresos"] - item["costos"], 2
+        )
+
+        detalle_por_producto.append(item)
+
+    detalle_por_producto.sort(
+        key=lambda x: x["ganancia"],
+        reverse=True
+    )
+
+    return {
+        "ingresos_totales": round(ingresos_totales, 2),
+        "costos_totales": round(costos_totales, 2),
+        "ganancia_total": round(
+            ingresos_totales - costos_totales, 2
+        ),
+        "detalle_por_producto": detalle_por_producto
+    }
+
+#==========================
 #MOVIMIENTOS RECIENTES
 #==========================
 
@@ -152,13 +234,15 @@ def movimientos(
 
     movimientos = db.query(MovimientoInventario).order_by(
         MovimientoInventario.fecha_movimiento.desc()
-    ).limit(20).all()
+    ).limit(50).all()
 
     return [
         {
-            "producto_id": m.producto_id,
+            "producto": m.producto.nombre if m.producto else None,
+            "usuario": m.usuario.nombre if m.usuario else None,
             "tipo": m.tipo_movimiento,
             "cantidad": m.cantidad,
+            "observacion": m.observacion,
             "fecha": m.fecha_movimiento
         }
         for m in movimientos
