@@ -1,83 +1,140 @@
 import {
     Paper,
     Typography,
-    Table,
-    TableHead,
-    TableRow,
-    TableCell,
-    TableBody
+    Box,
+    useTheme
 } from "@mui/material";
 
-// Por ahora esto se muestra como tabla. Si más
-// adelante quieres un gráfico de línea, se puede
-// reemplazar este componente por uno con
-// "recharts" (no está instalado todavía) sin
-// tocar Dashboard.jsx ni el backend.
+import {
+    ResponsiveContainer,
+    BarChart,
+    Bar,
+    XAxis,
+    YAxis,
+    CartesianGrid,
+    Tooltip
+} from "recharts";
+
+// Nota: se usa BarChart (no AreaChart/LineChart) a
+// propósito. "Ventas por día" son totales de
+// categorías discretas, no una medición continua -
+// y una línea/área necesita al menos 2 puntos para
+// dibujar algo visible. Con un solo día de ventas,
+// una barra sigue mostrando información clara; una
+// línea no tendría nada que conectar.
 
 function VentasPorDia({ ventas }) {
 
+    const theme = useTheme();
+
     return (
 
-        <Paper sx={{ p: 2 }}>
+        <Paper sx={{ p: 2.5, height: "100%" }}>
 
             <Typography
-                variant="h6"
+                variant="subtitle2"
+                color="text.secondary"
                 gutterBottom
             >
                 Ventas por Día
             </Typography>
 
-            <Table>
+            {ventas.length === 0 && (
 
-                <TableHead>
+                <Box
+                    sx={{
+                        display: "flex",
+                        alignItems: "center",
+                        justifyContent: "center",
+                        height: 220
+                    }}
+                >
+                    <Typography color="text.secondary">
+                        Todavía no hay ventas registradas.
+                    </Typography>
+                </Box>
+            )}
 
-                    <TableRow>
+            {ventas.length > 0 && (
 
-                        <TableCell>
-                            Fecha
-                        </TableCell>
+                <Box sx={{ width: "100%", height: 240 }}>
 
-                        <TableCell align="right">
-                            Total Vendido
-                        </TableCell>
+                    <ResponsiveContainer
+                        width="100%"
+                        height="100%"
+                    >
+                        <BarChart data={ventas}>
 
-                    </TableRow>
+                            <CartesianGrid
+                                strokeDasharray="3 3"
+                                stroke={
+                                    theme.palette.divider
+                                }
+                                vertical={false}
+                            />
 
-                </TableHead>
+                            <XAxis
+                                dataKey="fecha"
+                                tick={{
+                                    fontSize: 11,
+                                    fill:
+                                        theme.palette.text
+                                            .secondary
+                                }}
+                                axisLine={false}
+                                tickLine={false}
+                            />
 
-                <TableBody>
+                            <YAxis
+                                tick={{
+                                    fontSize: 11,
+                                    fill:
+                                        theme.palette.text
+                                            .secondary
+                                }}
+                                axisLine={false}
+                                tickLine={false}
+                                width={50}
+                            />
 
-                    {ventas.length === 0 && (
+                            <Tooltip
+                                cursor={{
+                                    fill:
+                                        theme.palette.mode ===
+                                        "dark"
+                                            ? "rgba(255,255,255,0.04)"
+                                            : "rgba(15, 23, 42, 0.04)"
+                                }}
+                                contentStyle={{
+                                    borderRadius: 10,
+                                    border:
+                                        `1px solid ${theme.palette.divider}`,
+                                    backgroundColor:
+                                        theme.palette
+                                            .background.paper,
+                                    fontSize: 13
+                                }}
+                                formatter={(value) => [
+                                    value,
+                                    "Total vendido"
+                                ]}
+                            />
 
-                        <TableRow>
+                            <Bar
+                                dataKey="ventas"
+                                fill={
+                                    theme.palette
+                                        .primary.main
+                                }
+                                radius={[6, 6, 0, 0]}
+                                maxBarSize={56}
+                            />
 
-                            <TableCell colSpan={2}>
-                                Todavía no hay ventas
-                                registradas.
-                            </TableCell>
+                        </BarChart>
+                    </ResponsiveContainer>
 
-                        </TableRow>
-                    )}
-
-                    {ventas.map((item, index) => (
-
-                        <TableRow key={index}>
-
-                            <TableCell>
-                                {item.fecha}
-                            </TableCell>
-
-                            <TableCell align="right">
-                                {item.ventas}
-                            </TableCell>
-
-                        </TableRow>
-
-                    ))}
-
-                </TableBody>
-
-            </Table>
+                </Box>
+            )}
 
         </Paper>
     );

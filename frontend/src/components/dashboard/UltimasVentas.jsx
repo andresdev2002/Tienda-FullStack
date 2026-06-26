@@ -12,10 +12,11 @@ function UltimasVentas({ ventas }) {
 
     return (
 
-        <Paper sx={{ p: 2 }}>
+        <Paper sx={{ p: 2.5 }}>
 
             <Typography
-                variant="h6"
+                variant="subtitle2"
+                color="text.secondary"
                 gutterBottom
             >
                 Últimas Ventas
