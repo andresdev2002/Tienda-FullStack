@@ -9,9 +9,16 @@ import {
     TableBody
 } from "@mui/material";
 
+import AddRoundedIcon from "@mui/icons-material/AddRounded";
+import EditRoundedIcon from "@mui/icons-material/EditRounded";
+import ToggleOnRoundedIcon from "@mui/icons-material/ToggleOnRounded";
+import ToggleOffRoundedIcon from "@mui/icons-material/ToggleOffRounded";
+
 import { useEffect, useState, useContext } from "react";
 
 import Layout from "../components/layout/Layout";
+import PageHeader from "../components/common/PageHeader";
+import TableSearchBar from "../components/common/TableSearchBar";
 
 import ModalUsuario from
 "../components/usuarios/ModalUsuario";
@@ -37,11 +44,38 @@ function Usuarios() {
     const [usuarios, setUsuarios] =
         useState([]);
 
+    const [cargando, setCargando] =
+        useState(true);
+
     const [openModal, setOpenModal] =
         useState(false);
 
     const [usuarioEditar, setUsuarioEditar] =
         useState(null);
+
+    const [busqueda, setBusqueda] =
+        useState("");
+
+    const usuariosFiltrados = usuarios.filter(
+        (u) => {
+
+            const texto = busqueda.toLowerCase();
+
+            const rol = NOMBRES_ROL[u.rol_id] || "";
+
+            return (
+                u.nombre
+                    ?.toLowerCase()
+                    .includes(texto) ||
+
+                u.email
+                    ?.toLowerCase()
+                    .includes(texto) ||
+
+                rol.toLowerCase().includes(texto)
+            );
+        }
+    );
 
     useEffect(() => {
 
@@ -61,6 +95,10 @@ function Usuarios() {
         } catch (error) {
 
             console.error(error);
+
+        } finally {
+
+            setCargando(false);
         }
     };
 
@@ -115,20 +153,32 @@ function Usuarios() {
 
         <Layout>
 
-            <Paper sx={{ p: 2 }}>
+            <PageHeader
+                titulo="Usuarios"
+                descripcion="Cuentas de acceso al sistema y sus roles"
+                accion={
+                    <Button
+                        variant="contained"
+                        startIcon={<AddRoundedIcon />}
+                        onClick={() => {
 
-                <Button
-                    variant="contained"
-                    sx={{ mb: 2 }}
-                    onClick={() => {
+                            setUsuarioEditar(null);
 
-                        setUsuarioEditar(null);
+                            setOpenModal(true);
+                        }}
+                    >
+                        Nuevo Usuario
+                    </Button>
+                }
+            />
 
-                        setOpenModal(true);
-                    }}
-                >
-                    Nuevo Usuario
-                </Button>
+            <Paper sx={{ p: 2.5 }}>
+
+                <TableSearchBar
+                    value={busqueda}
+                    onChange={setBusqueda}
+                    placeholder="Buscar por nombre, email o rol..."
+                />
 
                 <Table>
 
@@ -166,7 +216,24 @@ function Usuarios() {
 
                     <TableBody>
 
-                        {usuarios.map((u) => (
+                        {!cargando &&
+                            usuariosFiltrados.length === 0 && (
+
+                            <TableRow>
+                                <TableCell colSpan={6}>
+                                    <Typography
+                                        color="text.secondary"
+                                        sx={{ py: 2 }}
+                                    >
+                                        {usuarios.length === 0
+                                            ? "No hay usuarios registrados todavía."
+                                            : "Ningún usuario coincide con la búsqueda."}
+                                    </Typography>
+                                </TableCell>
+                            </TableRow>
+                        )}
+
+                        {usuariosFiltrados.map((u) => (
 
                             <TableRow
                                 key={u.id_usuario}
@@ -214,6 +281,9 @@ function Usuarios() {
                                     <Button
                                         size="small"
                                         variant="outlined"
+                                        startIcon={
+                                            <EditRoundedIcon fontSize="small" />
+                                        }
                                         sx={{ mr: 1 }}
                                         onClick={() =>
                                             handleEditar(u)
@@ -230,6 +300,11 @@ function Usuarios() {
                                                 : "success"
                                         }
                                         variant="contained"
+                                        startIcon={
+                                            u.estado
+                                                ? <ToggleOffRoundedIcon fontSize="small" />
+                                                : <ToggleOnRoundedIcon fontSize="small" />
+                                        }
                                         disabled={
                                             u.id_usuario ===
                                             usuarioActual?.id

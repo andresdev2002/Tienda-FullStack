@@ -10,8 +10,13 @@ import {
     DialogContent,
     TextField,
     Button,
-    DialogActions
+    DialogActions,
+    Grid,
+    Divider
 } from "@mui/material";
+
+import CloseRoundedIcon from "@mui/icons-material/CloseRounded";
+import SaveRoundedIcon from "@mui/icons-material/SaveRounded";
 
 import { AuthContext } from "../../context/AuthContext";
 
@@ -172,7 +177,7 @@ function ModalProducto({
             fullWidth
         >
 
-            <DialogTitle>
+            <DialogTitle sx={{ fontWeight: 700 }}>
 
                 {productoEditar
                     ? "Editar Producto"
@@ -180,124 +185,159 @@ function ModalProducto({
 
             </DialogTitle>
 
+            <Divider />
+
             <DialogContent>
 
-                {/* Nombre */}
+                <Grid container spacing={2} sx={{ mt: 0.5 }}>
 
-                <TextField
-                    label="Nombre"
-                    name="nombre"
-                    value={formData.nombre}
-                    onChange={handleChange}
-                    fullWidth
-                    margin="normal"
-                />
+                    {/* Nombre */}
 
-                {/* Descripción */}
+                    <Grid xs={12} md={8}>
+                        <TextField
+                            label="Nombre"
+                            name="nombre"
+                            value={formData.nombre}
+                            onChange={handleChange}
+                            fullWidth
+                        />
+                    </Grid>
 
-                <TextField
-                    label="Descripción"
-                    name="descripcion"
-                    value={formData.descripcion}
-                    onChange={handleChange}
-                    fullWidth
-                    margin="normal"
-                />
+                    {/* Unidad de medida */}
 
-                {/* Precio Compra */}
+                    <Grid xs={12} md={4}>
+                        <TextField
+                            label="Unidad de Medida"
+                            name="unidad_medida"
+                            value={formData.unidad_medida}
+                            onChange={handleChange}
+                            fullWidth
+                        />
+                    </Grid>
 
-                <TextField
-                    label="Precio Compra"
-                    name="precio_compra"
-                    type="number"
-                    value={formData.precio_compra}
-                    onChange={handleChange}
-                    fullWidth
-                    margin="normal"
-                />
+                    {/* Descripción */}
 
-                {/* Precio Venta */}
+                    <Grid xs={12}>
+                        <TextField
+                            label="Descripción"
+                            name="descripcion"
+                            value={formData.descripcion}
+                            onChange={handleChange}
+                            fullWidth
+                            multiline
+                            minRows={2}
+                        />
+                    </Grid>
 
-                <TextField
-                    label="Precio Venta"
-                    name="precio_venta"
-                    type="number"
-                    value={formData.precio_venta}
-                    onChange={handleChange}
-                    fullWidth
-                    margin="normal"
-                />
+                    {/* Precio Compra */}
 
-                {/* Stock Actual */}
+                    <Grid xs={12} sm={6}>
+                        <TextField
+                            label="Precio Compra"
+                            name="precio_compra"
+                            type="number"
+                            value={formData.precio_compra}
+                            onChange={handleChange}
+                            fullWidth
+                        />
+                    </Grid>
 
-                <TextField
-                    label="Stock Actual"
-                    name="stock_actual"
-                    type="number"
-                    value={formData.stock_actual}
-                    onChange={handleChange}
-                    fullWidth
-                    margin="normal"
-                />
+                    {/* Precio Venta */}
 
-                {/* Stock Mínimo */}
+                    <Grid xs={12} sm={6}>
+                        <TextField
+                            label="Precio Venta"
+                            name="precio_venta"
+                            type="number"
+                            value={formData.precio_venta}
+                            onChange={handleChange}
+                            fullWidth
+                        />
+                    </Grid>
 
-                <TextField
-                    label="Stock Mínimo"
-                    name="stock_minimo"
-                    type="number"
-                    value={formData.stock_minimo}
-                    onChange={handleChange}
-                    fullWidth
-                    margin="normal"
-                />
+                    {/* Stock Actual */}
 
-                {/* Stock Máximo */}
+                    <Grid xs={12} sm={4}>
+                        <TextField
+                            label="Stock Actual"
+                            name="stock_actual"
+                            type="number"
+                            value={formData.stock_actual}
+                            onChange={handleChange}
+                            fullWidth
+                        />
+                    </Grid>
 
-                <TextField
-                    label="Stock Máximo"
-                    name="stock_maximo"
-                    type="number"
-                    value={formData.stock_maximo}
-                    onChange={handleChange}
-                    fullWidth
-                    margin="normal"
-                />
+                    {/* Stock Mínimo */}
 
-                {/* Categoría */}
+                    <Grid xs={12} sm={4}>
+                        <TextField
+                            label="Stock Mínimo"
+                            name="stock_minimo"
+                            type="number"
+                            value={formData.stock_minimo}
+                            onChange={handleChange}
+                            fullWidth
+                        />
+                    </Grid>
 
-                <TextField
-                    label="Categoría ID"
-                    name="categoria_id"
-                    type="number"
-                    value={formData.categoria_id}
-                    onChange={handleChange}
-                    fullWidth
-                    margin="normal"
-                />
+                    {/* Stock Máximo */}
 
-                {/* Proveedor */}
+                    <Grid xs={12} sm={4}>
+                        <TextField
+                            label="Stock Máximo"
+                            name="stock_maximo"
+                            type="number"
+                            value={formData.stock_maximo}
+                            onChange={handleChange}
+                            fullWidth
+                        />
+                    </Grid>
 
-                <TextField
-                    label="Proveedor ID"
-                    name="proveedor_id"
-                    type="number"
-                    value={formData.proveedor_id}
-                    onChange={handleChange}
-                    fullWidth
-                    margin="normal"
-                />
+                    {/* Categoría */}
+
+                    <Grid xs={12} sm={6}>
+                        <TextField
+                            label="Categoría ID"
+                            name="categoria_id"
+                            type="number"
+                            value={formData.categoria_id}
+                            onChange={handleChange}
+                            fullWidth
+                        />
+                    </Grid>
+
+                    {/* Proveedor */}
+
+                    <Grid xs={12} sm={6}>
+                        <TextField
+                            label="Proveedor ID"
+                            name="proveedor_id"
+                            type="number"
+                            value={formData.proveedor_id}
+                            onChange={handleChange}
+                            fullWidth
+                        />
+                    </Grid>
+
+                </Grid>
 
             </DialogContent>
 
-            <DialogActions>
+            <Divider />
 
-                <Button onClick={onClose}>
+            <DialogActions sx={{ p: 2 }}>
+
+                <Button
+                    onClick={onClose}
+                    startIcon={<CloseRoundedIcon />}
+                >
                     Cancelar
                 </Button>
 
                 <Button
                     variant="contained"
+                    startIcon={<SaveRoundedIcon />}
                     onClick={guardarProducto}
                 >
                     {productoEditar

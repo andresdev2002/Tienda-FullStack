@@ -2,6 +2,10 @@
 # JWT Y FECHAS
 # =========================================
 
+import os
+
+from dotenv import load_dotenv
+
 from jose import jwt
 
 from datetime import datetime
@@ -17,9 +21,11 @@ from passlib.context import CryptContext
 # CONFIGURACIÓN JWT
 # =========================================
 
-SECRET_KEY = "mi_clave_super_secreta"
+load_dotenv()
 
-ALGORITHM = "HS256"
+SECRET_KEY = os.getenv("SECRET_KEY")
+
+ALGORITHM = os.getenv("ALGORITHM")
 
 ACCESS_TOKEN_EXPIRE_MINUTES = 60
 

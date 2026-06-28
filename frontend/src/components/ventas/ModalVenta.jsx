@@ -4,10 +4,15 @@ import {
     DialogContent,
     DialogActions,
     Button,
-    TextField
+    TextField,
+    Grid,
+    Divider
 } from "@mui/material";
 
 import MenuItem from "@mui/material/MenuItem";
+
+import CloseRoundedIcon from "@mui/icons-material/CloseRounded";
+import PointOfSaleRoundedIcon from "@mui/icons-material/PointOfSaleRounded";
 
 import { useEffect, useState } from "react";
 
@@ -112,8 +117,7 @@ const cargarDatos = async () => {
                 }
             ]
         };
-        console.log("TOKEN:", token);
-        console.log("USUARIO:", localStorage.getItem("usuario"));
+
         await crearVenta(
             venta,
             token
@@ -140,132 +144,154 @@ const cargarDatos = async () => {
         <Dialog
             open={open}
             onClose={onClose}
-            maxWidth="md"
+            maxWidth="sm"
             fullWidth
         >
 
-            <DialogTitle>
+            <DialogTitle sx={{ fontWeight: 700 }}>
 
                 Nueva Venta
 
             </DialogTitle>
 
+            <Divider />
+
             <DialogContent>
 
-                {/* Cliente */}
+                <Grid container spacing={2} sx={{ mt: 0.5 }}>
 
-                <TextField
-                    select
-                    label="Cliente"
-                    value={clienteId}
-                    onChange={(e) =>
-                        setClienteId(e.target.value)
-                    }
-                    fullWidth
-                    margin="normal"
-                >
-                        <MenuItem value="">
-                            Seleccione
-                        </MenuItem>
+                    {/* Cliente */}
 
-                    {clientes.map(cliente => (
+                    <Grid xs={12} sm={6}>
 
-                        <MenuItem
-                            key={cliente.id_cliente}
-                            value={cliente.id_cliente}
-                        >
-                            {cliente.nombre}
-                        </MenuItem>
-                    ))}
-
-                </TextField>
-
-                {/* Método de pago */}
-
-                <TextField
+                        <TextField
                             select
-                            label="Método Pago"
-                            value={metodoPago}
+                            label="Cliente"
+                            value={clienteId}
                             onChange={(e) =>
-                                setMetodoPago(e.target.value)
+                                setClienteId(e.target.value)
                             }
                             fullWidth
-                            margin="normal"
                         >
+                                <MenuItem value="">
+                                    Seleccione
+                                </MenuItem>
 
-                            <MenuItem value="EFECTIVO">
-                                EFECTIVO
-                            </MenuItem>
+                            {clientes.map(cliente => (
 
-                            <MenuItem value="TARJETA">
-                            TARJETA
-                            </MenuItem>
+                                <MenuItem
+                                    key={cliente.id_cliente}
+                                    value={cliente.id_cliente}
+                                >
+                                    {cliente.nombre}
+                                </MenuItem>
+                            ))}
 
-                            <MenuItem value="TRANSFERENCIA">
-                            TRANSFERENCIA
-                            </MenuItem>
+                        </TextField>
 
-                            <MenuItem value="NEQUI">
-                            NEQUI
-                            </MenuItem>
+                    </Grid>
 
-                </TextField>
+                    {/* Método de pago */}
 
-                {/* Producto */}
+                    <Grid xs={12} sm={6}>
 
-                <TextField
-                        select
-                        label="Producto"
-                        value={productoId}
-                        onChange={(e) =>
-                            setProductoId(e.target.value)
-                        }
-                        fullWidth
-                        margin="normal"
-                    >
+                        <TextField
+                                    select
+                                    label="Método Pago"
+                                    value={metodoPago}
+                                    onChange={(e) =>
+                                        setMetodoPago(e.target.value)
+                                    }
+                                    fullWidth
+                                >
 
-                        <MenuItem value="">
-                        Seleccione
-                        </MenuItem>
+                                    <MenuItem value="EFECTIVO">
+                                        Efectivo
+                                    </MenuItem>
 
-                        {productos.map(producto => (
+                                    <MenuItem value="TARJETA">
+                                    Tarjeta
+                                    </MenuItem>
 
-                            <MenuItem
-                                key={producto.id_producto}
-                                value={producto.id_producto}
+                                    <MenuItem value="TRANSFERENCIA">
+                                    Transferencia
+                                    </MenuItem>
+
+                                    <MenuItem value="NEQUI">
+                                    Nequi
+                                    </MenuItem>
+
+                        </TextField>
+
+                    </Grid>
+
+                    {/* Producto */}
+
+                    <Grid xs={12} sm={8}>
+
+                        <TextField
+                                select
+                                label="Producto"
+                                value={productoId}
+                                onChange={(e) =>
+                                    setProductoId(e.target.value)
+                                }
+                                fullWidth
                             >
-                                {producto.nombre}
-                            </MenuItem>
 
-                        ))}
+                                <MenuItem value="">
+                                Seleccione
+                                </MenuItem>
 
-                </TextField>
+                                {productos.map(producto => (
 
-                {/* Cantidad */}
+                                    <MenuItem
+                                        key={producto.id_producto}
+                                        value={producto.id_producto}
+                                    >
+                                        {producto.nombre}
+                                    </MenuItem>
 
-                <TextField
-                    label="Cantidad"
-                    type="number"
-                    value={cantidad}
-                    onChange={(e) =>
-                        setCantidad(e.target.value)
-                    }
-                    fullWidth
-                    margin="normal"
-                />
+                                ))}
+
+                        </TextField>
+
+                    </Grid>
+
+                    {/* Cantidad */}
+
+                    <Grid xs={12} sm={4}>
+
+                        <TextField
+                            label="Cantidad"
+                            type="number"
+                            value={cantidad}
+                            onChange={(e) =>
+                                setCantidad(e.target.value)
+                            }
+                            fullWidth
+                        />
+
+                    </Grid>
+
+                </Grid>
 
             </DialogContent>
 
-            <DialogActions>
+            <Divider />
+
+            <DialogActions sx={{ p: 2 }}>
 
                 <Button
                     onClick={onClose}
+                    startIcon={<CloseRoundedIcon />}
                 >
                     Cancelar
                 </Button>
 
                 <Button
                     variant="contained"
+                    startIcon={<PointOfSaleRoundedIcon />}
                     onClick={guardarVenta}
                 >
                     Guardar Venta

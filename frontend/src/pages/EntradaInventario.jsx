@@ -6,11 +6,14 @@ import {
     MenuItem
 } from "@mui/material";
 
+import InputRoundedIcon from "@mui/icons-material/InputRounded";
+
 import { useState } from "react";
 import { useEffect } from "react";
 import { useContext } from "react";
 
 import Layout from "../components/layout/Layout";
+import PageHeader from "../components/common/PageHeader";
 
 import { AuthContext }
 from "../context/AuthContext";
@@ -110,14 +113,17 @@ function EntradaInventario() {
 
         <Layout>
 
-            <Typography
-                variant="h4"
-                gutterBottom
-            >
-                Entrada Inventario
-            </Typography>
+            <PageHeader
+                titulo="Entrada de Inventario"
+                descripcion="Registra el ingreso de stock de un producto"
+            />
 
-            <Paper sx={{ p: 3 }}>
+            <Paper
+                sx={{
+                    p: 3,
+                    maxWidth: 480
+                }}
+            >
 
                 <TextField
                     select
@@ -180,8 +186,10 @@ function EntradaInventario() {
 
                 <Button
                     variant="contained"
+                    startIcon={<InputRoundedIcon />}
                     onClick={guardarEntrada}
                     sx={{ mt: 2 }}
+                    fullWidth
                 >
                     Registrar Entrada
                 </Button>

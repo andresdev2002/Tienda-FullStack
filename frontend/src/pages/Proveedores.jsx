@@ -15,7 +15,13 @@ import {
     Button
 } from "@mui/material";
 
+import AddRoundedIcon from "@mui/icons-material/AddRounded";
+import EditRoundedIcon from "@mui/icons-material/EditRounded";
+import DeleteRoundedIcon from "@mui/icons-material/DeleteRounded";
+
 import Layout from "../components/layout/Layout";
+import PageHeader from "../components/common/PageHeader";
+import TableSearchBar from "../components/common/TableSearchBar";
 
 import ModalProveedor from "../components/proveedores/ModalProveedor";
 
@@ -37,12 +43,43 @@ function Proveedores() {
     const [proveedores, setProveedores] =
         useState([]);
 
+    const [cargando, setCargando] =
+        useState(true);
+
     const [openModal, setOpenModal] =
         useState(false);
 
     const [proveedorEditar,
         setProveedorEditar] =
         useState(null);
+
+    const [busqueda, setBusqueda] =
+        useState("");
+
+    const proveedoresFiltrados = proveedores.filter(
+        (proveedor) => {
+
+            const texto = busqueda.toLowerCase();
+
+            return (
+                proveedor.nombre
+                    ?.toLowerCase()
+                    .includes(texto) ||
+
+                proveedor.contacto
+                    ?.toLowerCase()
+                    .includes(texto) ||
+
+                proveedor.email
+                    ?.toLowerCase()
+                    .includes(texto) ||
+
+                proveedor.telefono
+                    ?.toLowerCase()
+                    .includes(texto)
+            );
+        }
+    );
 
     // =========================================
     // CARGAR PROVEEDORES
@@ -67,6 +104,10 @@ function Proveedores() {
         } catch (error) {
 
             console.error(error);
+
+        } finally {
+
+            setCargando(false);
         }
     };
 
@@ -103,29 +144,34 @@ function Proveedores() {
 
         <Layout>
 
-            <Typography
-                variant="h4"
-                gutterBottom
-            >
-                Proveedores
-            </Typography>
+            <PageHeader
+                titulo="Proveedores"
+                descripcion="Empresas que te abastecen de productos"
+                accion={
+                    <Button
+                        variant="contained"
+                        startIcon={<AddRoundedIcon />}
+                        onClick={() => {
 
-            <Paper sx={{ p: 2 }}>
+                            setProveedorEditar(
+                                null
+                            );
 
-                <Button
-                    variant="contained"
-                    sx={{ mb: 2 }}
-                    onClick={() => {
+                            setOpenModal(true);
+                        }}
+                    >
+                        Nuevo Proveedor
+                    </Button>
+                }
+            />
 
-                        setProveedorEditar(
-                            null
-                        );
+            <Paper sx={{ p: 2.5 }}>
 
-                        setOpenModal(true);
-                    }}
-                >
-                    Nuevo Proveedor
-                </Button>
+                <TableSearchBar
+                    value={busqueda}
+                    onChange={setBusqueda}
+                    placeholder="Buscar proveedor..."
+                />
 
                 <Table>
 
@@ -163,7 +209,24 @@ function Proveedores() {
 
                     <TableBody>
 
-                        {proveedores.map(
+                        {!cargando &&
+                            proveedoresFiltrados.length === 0 && (
+
+                            <TableRow>
+                                <TableCell colSpan={6}>
+                                    <Typography
+                                        color="text.secondary"
+                                        sx={{ py: 2 }}
+                                    >
+                                        {proveedores.length === 0
+                                            ? "No hay proveedores registrados todavía."
+                                            : "Ningún proveedor coincide con la búsqueda."}
+                                    </Typography>
+                                </TableCell>
+                            </TableRow>
+                        )}
+
+                        {proveedoresFiltrados.map(
                             (proveedor) => (
 
                             <TableRow
@@ -197,6 +260,9 @@ function Proveedores() {
                                     <Button
                                         size="small"
                                         variant="outlined"
+                                        startIcon={
+                                            <EditRoundedIcon fontSize="small" />
+                                        }
                                         onClick={() => {
 
                                             setProveedorEditar(
@@ -214,6 +280,9 @@ function Proveedores() {
                                     <Button
                                         size="small"
                                         color="error"
+                                        startIcon={
+                                            <DeleteRoundedIcon fontSize="small" />
+                                        }
                                         sx={{ ml: 1 }}
                                         onClick={() =>
                                             eliminar(

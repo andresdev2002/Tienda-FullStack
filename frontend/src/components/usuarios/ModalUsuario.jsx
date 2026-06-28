@@ -11,8 +11,12 @@ import {
     DialogActions,
     TextField,
     MenuItem,
-    Button
+    Button,
+    Divider
 } from "@mui/material";
+
+import CloseRoundedIcon from "@mui/icons-material/CloseRounded";
+import SaveRoundedIcon from "@mui/icons-material/SaveRounded";
 
 import {
     crearUsuario,
@@ -187,13 +191,15 @@ function ModalUsuario({
             maxWidth="sm"
         >
 
-            <DialogTitle>
+            <DialogTitle sx={{ fontWeight: 700 }}>
 
                 {usuarioEditar
                     ? "Editar Usuario"
                     : "Nuevo Usuario"}
 
             </DialogTitle>
+
+            <Divider />
 
             <DialogContent>
 
@@ -258,16 +264,20 @@ function ModalUsuario({
 
             </DialogContent>
 
-            <DialogActions>
+            <Divider />
+
+            <DialogActions sx={{ p: 2 }}>
 
                 <Button
                     onClick={onClose}
+                    startIcon={<CloseRoundedIcon />}
                 >
                     Cancelar
                 </Button>
 
                 <Button
                     variant="contained"
+                    startIcon={<SaveRoundedIcon />}
                     onClick={guardarUsuario}
                 >
                     Guardar

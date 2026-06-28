@@ -15,7 +15,13 @@ import {
     Button
 } from "@mui/material";
 
+import AddRoundedIcon from "@mui/icons-material/AddRounded";
+import EditRoundedIcon from "@mui/icons-material/EditRounded";
+import DeleteRoundedIcon from "@mui/icons-material/DeleteRounded";
+
 import Layout from "../components/layout/Layout";
+import PageHeader from "../components/common/PageHeader";
+import TableSearchBar from "../components/common/TableSearchBar";
 
 import ModalCliente from "../components/clientes/ModalCliente";
 
@@ -33,11 +39,38 @@ function Clientes() {
     const [clientes, setClientes] =
         useState([]);
 
+    const [cargando, setCargando] =
+        useState(true);
+
     const [openModal, setOpenModal] =
         useState(false);
 
     const [clienteEditar, setClienteEditar] =
         useState(null);
+
+    const [busqueda, setBusqueda] =
+        useState("");
+
+    const clientesFiltrados = clientes.filter(
+        (cliente) => {
+
+            const texto = busqueda.toLowerCase();
+
+            return (
+                cliente.nombre
+                    ?.toLowerCase()
+                    .includes(texto) ||
+
+                cliente.email
+                    ?.toLowerCase()
+                    .includes(texto) ||
+
+                cliente.telefono
+                    ?.toLowerCase()
+                    .includes(texto)
+            );
+        }
+    );
 
     useEffect(() => {
 
@@ -57,6 +90,10 @@ function Clientes() {
         } catch (error) {
 
             console.error(error);
+
+        } finally {
+
+            setCargando(false);
         }
     };
 
@@ -84,27 +121,32 @@ function Clientes() {
 
         <Layout>
 
-            <Typography
-                variant="h4"
-                gutterBottom
-            >
-                Clientes
-            </Typography>
+            <PageHeader
+                titulo="Clientes"
+                descripcion="Personas y empresas a las que les vendes"
+                accion={
+                    <Button
+                        variant="contained"
+                        startIcon={<AddRoundedIcon />}
+                        onClick={() => {
 
-            <Paper sx={{ p: 2 }}>
+                            setClienteEditar(null);
 
-                <Button
-                    variant="contained"
-                    sx={{ mb: 2 }}
-                    onClick={() => {
+                            setOpenModal(true);
+                        }}
+                    >
+                        Nuevo Cliente
+                    </Button>
+                }
+            />
 
-                        setClienteEditar(null);
+            <Paper sx={{ p: 2.5 }}>
 
-                        setOpenModal(true);
-                    }}
-                >
-                    Nuevo Cliente
-                </Button>
+                <TableSearchBar
+                    value={busqueda}
+                    onChange={setBusqueda}
+                    placeholder="Buscar cliente..."
+                />
 
                 <Table>
 
@@ -138,7 +180,24 @@ function Clientes() {
 
                     <TableBody>
 
-                        {clientes.map(
+                        {!cargando &&
+                            clientesFiltrados.length === 0 && (
+
+                            <TableRow>
+                                <TableCell colSpan={5}>
+                                    <Typography
+                                        color="text.secondary"
+                                        sx={{ py: 2 }}
+                                    >
+                                        {clientes.length === 0
+                                            ? "No hay clientes registrados todavía."
+                                            : "Ningún cliente coincide con la búsqueda."}
+                                    </Typography>
+                                </TableCell>
+                            </TableRow>
+                        )}
+
+                        {clientesFiltrados.map(
                             (cliente) => (
 
                             <TableRow
@@ -168,6 +227,9 @@ function Clientes() {
                                     <Button
                                         variant="outlined"
                                         size="small"
+                                        startIcon={
+                                            <EditRoundedIcon fontSize="small" />
+                                        }
                                         sx={{ mr: 1 }}
                                         onClick={() => {
 
@@ -186,6 +248,9 @@ function Clientes() {
                                     <Button
                                         color="error"
                                         size="small"
+                                        startIcon={
+                                            <DeleteRoundedIcon fontSize="small" />
+                                        }
                                         onClick={() =>
                                             eliminar(
                                                 cliente.id_cliente

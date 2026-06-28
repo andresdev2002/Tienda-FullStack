@@ -15,7 +15,14 @@ import {
     Grid
 } from "@mui/material";
 
+import AttachMoneyRoundedIcon from "@mui/icons-material/AttachMoneyRounded";
+import ReceiptLongRoundedIcon from "@mui/icons-material/ReceiptLongRounded";
+import TrendingUpRoundedIcon from "@mui/icons-material/TrendingUpRounded";
+import TrendingDownRoundedIcon from "@mui/icons-material/TrendingDownRounded";
+
 import Layout from "../components/layout/Layout";
+import PageHeader from "../components/common/PageHeader";
+import KpiCard from "../components/dashboard/KpiCard";
 
 import {
     obtenerGanancias,
@@ -34,6 +41,9 @@ function Reportes() {
     const [movimientos, setMovimientos] =
         useState([]);
 
+    const [cargandoMovimientos, setCargandoMovimientos] =
+        useState(true);
+
     useEffect(() => {
 
         cargarReportes();
@@ -42,115 +52,117 @@ function Reportes() {
 
     const cargarReportes = async () => {
 
+        // Cada llamada va en su propio try/catch:
+        // si "ganancias" falla, no debe impedir que
+        // se intente "movimientos" también (y
+        // viceversa). Antes estaban en el mismo try,
+        // y un fallo en la primera ocultaba si la
+        // segunda de verdad funcionaba o no.
+
         try {
 
             const dataGanancias =
                 await obtenerGanancias(token);
 
+            setGanancias(dataGanancias);
+
+        } catch (error) {
+
+            console.error(
+                "Error cargando ganancias:",
+                error
+            );
+        }
+
+        try {
+
             const dataMovimientos =
                 await obtenerMovimientos(token);
-
-            setGanancias(dataGanancias);
 
             setMovimientos(dataMovimientos);
 
         } catch (error) {
 
-            console.error(error);
+            console.error(
+                "Error cargando movimientos:",
+                error
+            );
+
+        } finally {
+
+            setCargandoMovimientos(false);
         }
     };
+
+    const ganador = ganancias?.ganancia_total >= 0;
 
     return (
 
         <Layout>
 
-            <Typography
-                variant="h4"
-                gutterBottom
-            >
-                Reportes
-            </Typography>
+            <PageHeader
+                titulo="Reportes"
+                descripcion="Ganancias del negocio y trazabilidad de inventario"
+            />
 
             {/* =========================================
                 GANANCIAS TOTALES
                 ========================================= */}
 
-            <Paper sx={{ p: 2, mb: 3 }}>
+            {!ganancias && (
 
                 <Typography
-                    variant="h6"
-                    gutterBottom
+                    color="text.secondary"
+                    sx={{ mb: 3 }}
                 >
-                    Ganancias Totales
+                    Cargando reporte de ganancias...
                 </Typography>
+            )}
 
-                {!ganancias && (
+            {ganancias && (
 
-                    <Typography>
-                        Cargando...
-                    </Typography>
-                )}
+                <>
 
-                {ganancias && (
+                    <Grid container spacing={2.5} sx={{ mb: 3 }}>
 
-                    <>
-
-                        <Grid container spacing={3}>
-
-                            <Grid xs={12} md={4}>
-
-                                <Typography
-                                    color="text.secondary"
-                                >
-                                    Ingresos Totales
-                                </Typography>
-
-                                <Typography variant="h5">
-                                    {ganancias.ingresos_totales}
-                                </Typography>
-
-                            </Grid>
-
-                            <Grid xs={12} md={4}>
-
-                                <Typography
-                                    color="text.secondary"
-                                >
-                                    Costos Totales
-                                </Typography>
-
-                                <Typography variant="h5">
-                                    {ganancias.costos_totales}
-                                </Typography>
-
-                            </Grid>
-
-                            <Grid xs={12} md={4}>
-
-                                <Typography
-                                    color="text.secondary"
-                                >
-                                    Ganancia Total
-                                </Typography>
-
-                                <Typography
-                                    variant="h5"
-                                    color={
-                                        ganancias.ganancia_total >= 0
-                                            ? "success.main"
-                                            : "error"
-                                    }
-                                >
-                                    {ganancias.ganancia_total}
-                                </Typography>
-
-                            </Grid>
-
+                        <Grid xs={12} sm={6} md={4}>
+                            <KpiCard
+                                titulo="Ingresos Totales"
+                                valor={ganancias.ingresos_totales}
+                                icono={AttachMoneyRoundedIcon}
+                                color="success"
+                            />
                         </Grid>
 
+                        <Grid xs={12} sm={6} md={4}>
+                            <KpiCard
+                                titulo="Costos Totales"
+                                valor={ganancias.costos_totales}
+                                icono={ReceiptLongRoundedIcon}
+                                color="neutral"
+                            />
+                        </Grid>
+
+                        <Grid xs={12} sm={6} md={4}>
+                            <KpiCard
+                                titulo="Ganancia Total"
+                                valor={ganancias.ganancia_total}
+                                icono={
+                                    ganador
+                                        ? TrendingUpRoundedIcon
+                                        : TrendingDownRoundedIcon
+                                }
+                                color={ganador ? "primary" : "error"}
+                            />
+                        </Grid>
+
+                    </Grid>
+
+                    <Paper sx={{ p: 2.5, mb: 3 }}>
+
                         <Typography
-                            variant="subtitle1"
-                            sx={{ mt: 3 }}
+                            variant="subtitle2"
+                            color="text.secondary"
                             gutterBottom
                         >
                             Ganancia por Producto
@@ -194,8 +206,13 @@ function Reportes() {
                                     <TableRow>
 
                                         <TableCell colSpan={5}>
-                                            Todavía no hay ventas
-                                            registradas.
+                                            <Typography
+                                                color="text.secondary"
+                                                sx={{ py: 2 }}
+                                            >
+                                                Todavía no hay ventas
+                                                registradas.
+                                            </Typography>
                                         </TableCell>
 
                                     </TableRow>
@@ -234,19 +251,20 @@ function Reportes() {
 
                         </Table>
 
-                    </>
-                )}
+                    </Paper>
 
-            </Paper>
+                </>
+            )}
 
             {/* =========================================
                 MOVIMIENTOS DE INVENTARIO
                 ========================================= */}
 
-            <Paper sx={{ p: 2 }}>
+            <Paper sx={{ p: 2.5 }}>
 
                 <Typography
-                    variant="h6"
+                    variant="subtitle2"
+                    color="text.secondary"
                     gutterBottom
                 >
                     Historial de Movimientos de Inventario
@@ -284,13 +302,19 @@ function Reportes() {
 
                     <TableBody>
 
-                        {movimientos.length === 0 && (
+                        {!cargandoMovimientos &&
+                            movimientos.length === 0 && (
 
                             <TableRow>
 
                                 <TableCell colSpan={5}>
-                                    Todavía no hay movimientos
-                                    registrados.
+                                    <Typography
+                                        color="text.secondary"
+                                        sx={{ py: 2 }}
+                                    >
+                                        Todavía no hay movimientos
+                                        registrados.
+                                    </Typography>
                                 </TableCell>
 
                             </TableRow>

@@ -15,7 +15,13 @@ import {
     Button
 } from "@mui/material";
 
+import AddRoundedIcon from "@mui/icons-material/AddRounded";
+import EditRoundedIcon from "@mui/icons-material/EditRounded";
+import DeleteRoundedIcon from "@mui/icons-material/DeleteRounded";
+
 import Layout from "../components/layout/Layout";
+import PageHeader from "../components/common/PageHeader";
+import TableSearchBar from "../components/common/TableSearchBar";
 
 import ModalProducto from "../components/productos/ModalProducto";
 
@@ -43,11 +49,30 @@ function Productos() {
     const [productos, setProductos] =
         useState([]);
 
+    const [cargando, setCargando] =
+        useState(true);
+
     const [openModal, setOpenModal] =
         useState(false);
 
     const [productoEditar, setProductoEditar] =
         useState(null);
+
+    const [busqueda, setBusqueda] =
+        useState("");
+
+    // =========================================
+    // FILTRO DE BÚSQUEDA
+    // =========================================
+    // Filtra sobre los datos ya cargados, no hace
+    // una nueva petición al backend.
+
+    const productosFiltrados = productos.filter(
+        (producto) =>
+            producto.nombre
+                .toLowerCase()
+                .includes(busqueda.toLowerCase())
+    );
 
     // =========================================
     // CARGAR PRODUCTOS
@@ -72,6 +97,9 @@ function Productos() {
 
             console.error(error);
 
+        } finally {
+
+            setCargando(false);
         }
     };
 
@@ -114,40 +142,37 @@ function Productos() {
 
         <Layout>
 
-            <Typography
-                variant="h4"
-                gutterBottom
-            >
-                Productos
-            </Typography>
+            <PageHeader
+                titulo="Productos"
+                descripcion="Catálogo de productos del inventario"
+                accion={
+                    <Button
+                        variant="contained"
+                        startIcon={<AddRoundedIcon />}
+                        onClick={() => {
 
-            <Paper sx={{ p: 2 }}>
+                            setProductoEditar(
+                                null
+                            );
 
-                {/* =========================================
-                    BOTÓN NUEVO PRODUCTO
-                ========================================= */}
+                            setOpenModal(
+                                true
+                            );
 
-                <Button
-                    variant="contained"
-                    sx={{ mb: 2 }}
-                    onClick={() => {
+                        }}
+                    >
+                        Nuevo Producto
+                    </Button>
+                }
+            />
 
-                        setProductoEditar(
-                            null
-                        );
+            <Paper sx={{ p: 2.5 }}>
 
-                        setOpenModal(
-                            true
-                        );
-
-                    }}
-                >
-                    Nuevo Producto
-                </Button>
-
-                {/* =========================================
-                    TABLA PRODUCTOS
-                ========================================= */}
+                <TableSearchBar
+                    value={busqueda}
+                    onChange={setBusqueda}
+                    placeholder="Buscar producto..."
+                />
 
                 <Table>
 
@@ -181,7 +206,24 @@ function Productos() {
 
                     <TableBody>
 
-                        {productos.map(
+                        {!cargando &&
+                            productosFiltrados.length === 0 && (
+
+                            <TableRow>
+                                <TableCell colSpan={5}>
+                                    <Typography
+                                        color="text.secondary"
+                                        sx={{ py: 2 }}
+                                    >
+                                        {productos.length === 0
+                                            ? "No hay productos registrados todavía."
+                                            : "Ningún producto coincide con la búsqueda."}
+                                    </Typography>
+                                </TableCell>
+                            </TableRow>
+                        )}
+
+                        {productosFiltrados.map(
                             (producto) => (
 
                             <TableRow
@@ -213,6 +255,9 @@ function Productos() {
                                     <Button
                                         variant="outlined"
                                         size="small"
+                                        startIcon={
+                                            <EditRoundedIcon fontSize="small" />
+                                        }
                                         sx={{ mr: 1 }}
                                         onClick={() => {
 
@@ -234,6 +279,9 @@ function Productos() {
                                     <Button
                                         color="error"
                                         size="small"
+                                        startIcon={
+                                            <DeleteRoundedIcon fontSize="small" />
+                                        }
                                         onClick={() =>
                                             eliminar(
                                                 producto.id_producto

@@ -10,8 +10,12 @@ import {
     DialogContent,
     DialogActions,
     TextField,
-    Button
+    Button,
+    Divider
 } from "@mui/material";
+
+import CloseRoundedIcon from "@mui/icons-material/CloseRounded";
+import SaveRoundedIcon from "@mui/icons-material/SaveRounded";
 
 import {
     crearCliente,
@@ -155,13 +159,15 @@ function ModalCliente({
             maxWidth="sm"
         >
 
-            <DialogTitle>
+            <DialogTitle sx={{ fontWeight: 700 }}>
 
                 {clienteEditar
                     ? "Editar Cliente"
                     : "Nuevo Cliente"}
 
             </DialogTitle>
+
+            <Divider />
 
             <DialogContent>
 
@@ -194,16 +200,20 @@ function ModalCliente({
 
             </DialogContent>
 
-            <DialogActions>
+            <Divider />
+
+            <DialogActions sx={{ p: 2 }}>
 
                 <Button
                     onClick={onClose}
+                    startIcon={<CloseRoundedIcon />}
                 >
                     Cancelar
                 </Button>
 
                 <Button
                     variant="contained"
+                    startIcon={<SaveRoundedIcon />}
                     onClick={guardarCliente}
                 >
                     Guardar

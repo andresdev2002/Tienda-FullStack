@@ -13,6 +13,8 @@ import { useEffect } from "react";
 import { useContext } from "react";
 
 import Layout from "../components/layout/Layout";
+import PageHeader from "../components/common/PageHeader";
+import TableSearchBar from "../components/common/TableSearchBar";
 
 import { AuthContext } from "../context/AuthContext";
 
@@ -28,6 +30,33 @@ function Inventario() {
     const [movimientos,
         setMovimientos] =
         useState([]);
+
+    const [cargando, setCargando] =
+        useState(true);
+
+    const [busqueda, setBusqueda] =
+        useState("");
+
+    const movimientosFiltrados = movimientos.filter(
+        (movimiento) => {
+
+            const texto = busqueda.toLowerCase();
+
+            return (
+                movimiento.producto
+                    ?.toLowerCase()
+                    .includes(texto) ||
+
+                movimiento.tipo_movimiento
+                    ?.toLowerCase()
+                    .includes(texto) ||
+
+                movimiento.observacion
+                    ?.toLowerCase()
+                    .includes(texto)
+            );
+        }
+    );
 
     useEffect(() => {
 
@@ -50,6 +79,10 @@ function Inventario() {
         } catch (error) {
 
             console.error(error);
+
+        } finally {
+
+            setCargando(false);
         }
     };
 
@@ -57,14 +90,18 @@ function Inventario() {
 
         <Layout>
 
-            <Typography
-                variant="h4"
-                gutterBottom
-            >
-                Inventario
-            </Typography>
+            <PageHeader
+                titulo="Inventario"
+                descripcion="Historial de movimientos de stock"
+            />
 
-            <Paper sx={{ p: 2 }}>
+            <Paper sx={{ p: 2.5 }}>
+
+                <TableSearchBar
+                    value={busqueda}
+                    onChange={setBusqueda}
+                    placeholder="Buscar por producto, tipo u observación..."
+                />
 
                 <Table>
 
@@ -102,7 +139,24 @@ function Inventario() {
 
                     <TableBody>
 
-                        {movimientos.map(
+                        {!cargando &&
+                            movimientosFiltrados.length === 0 && (
+
+                            <TableRow>
+                                <TableCell colSpan={6}>
+                                    <Typography
+                                        color="text.secondary"
+                                        sx={{ py: 2 }}
+                                    >
+                                        {movimientos.length === 0
+                                            ? "Todavía no hay movimientos registrados."
+                                            : "Ningún movimiento coincide con la búsqueda."}
+                                    </Typography>
+                                </TableCell>
+                            </TableRow>
+                        )}
+
+                        {movimientosFiltrados.map(
                             (movimiento) => (
 
                             <TableRow

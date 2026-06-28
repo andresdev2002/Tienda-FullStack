@@ -9,9 +9,14 @@ import {
     TableBody
 } from "@mui/material";
 
+import AddRoundedIcon from "@mui/icons-material/AddRounded";
+import ReplayRoundedIcon from "@mui/icons-material/ReplayRounded";
+
 import { useEffect, useState } from "react";
 
 import Layout from "../components/layout/Layout";
+import PageHeader from "../components/common/PageHeader";
+import TableSearchBar from "../components/common/TableSearchBar";
 
 import ModalVenta from
 "../components/ventas/ModalVenta";
@@ -34,8 +39,33 @@ function Ventas() {
     const [ventas, setVentas] =
         useState([]);
 
+    const [cargando, setCargando] =
+        useState(true);
+
     const [openModal, setOpenModal] =
     useState(false);
+
+    const [busqueda, setBusqueda] =
+        useState("");
+
+    const ventasFiltradas = ventas.filter(
+        (venta) => {
+
+            const texto = busqueda.toLowerCase();
+
+            return (
+                venta.cliente
+                    ?.toLowerCase()
+                    .includes(texto) ||
+
+                venta.metodo_pago
+                    ?.toLowerCase()
+                    .includes(texto) ||
+
+                String(venta.id_venta).includes(texto)
+            );
+        }
+    );
 
     //Función devolver
 
@@ -89,24 +119,39 @@ const handleDevolver = async (
 
         "Error al devolver venta"
     );
+} finally {
+
+    setCargando(false);
 }
     };
 
     return (
 
         <Layout>
-        
 
-            <Paper sx={{ p: 2 }}>
-                <Button
-                    variant="contained"
-                    sx={{ mb: 2 }}
-                    onClick={() =>
-                        setOpenModal(true)
-                    }
-                >
-                    Nueva Venta
-                </Button>
+            <PageHeader
+                titulo="Ventas"
+                descripcion="Historial de ventas y devoluciones"
+                accion={
+                    <Button
+                        variant="contained"
+                        startIcon={<AddRoundedIcon />}
+                        onClick={() =>
+                            setOpenModal(true)
+                        }
+                    >
+                        Nueva Venta
+                    </Button>
+                }
+            />
+
+            <Paper sx={{ p: 2.5 }}>
+
+                <TableSearchBar
+                    value={busqueda}
+                    onChange={setBusqueda}
+                    placeholder="Buscar por cliente, método de pago o ID..."
+                />
 
                 <Table>
 
@@ -144,7 +189,24 @@ const handleDevolver = async (
 
                     <TableBody>
 
-                        {ventas.map((venta) => (
+                        {!cargando &&
+                            ventasFiltradas.length === 0 && (
+
+                            <TableRow>
+                                <TableCell colSpan={6}>
+                                    <Typography
+                                        color="text.secondary"
+                                        sx={{ py: 2 }}
+                                    >
+                                        {ventas.length === 0
+                                            ? "Todavía no hay ventas registradas."
+                                            : "Ninguna venta coincide con la búsqueda."}
+                                    </Typography>
+                                </TableCell>
+                            </TableRow>
+                        )}
+
+                        {ventasFiltradas.map((venta) => (
 
                             <TableRow
                                 key={venta.id_venta}
@@ -188,6 +250,12 @@ const handleDevolver = async (
 
                                     variant="contained"
 
+                                    size="small"
+
+                                    startIcon={
+                                        <ReplayRoundedIcon fontSize="small" />
+                                    }
+
                                     disabled={
                                         venta.estado ===
                                         "DEVUELTA"
@@ -201,7 +269,7 @@ const handleDevolver = async (
 
                                 >
 
-                                    DEVOLVER
+                                    Devolver
 
                             </Button>
                                 </TableCell>

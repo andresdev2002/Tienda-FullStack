@@ -1,4 +1,5 @@
 import Layout from "../components/layout/Layout";
+import PageHeader from "../components/common/PageHeader";
 import { useState } from "react";
 import { useEffect } from "react";
 import { useContext } from "react";
@@ -9,7 +10,8 @@ import {
     TableHead,
     TableRow,
     TableCell,
-    TableBody
+    TableBody,
+    Box
 } from "@mui/material";
 
 import {
@@ -101,60 +103,82 @@ async () => {
 
         <Layout>
 
-            <Typography
-    variant="h4"
-    gutterBottom
->
-    Kardex por Producto
-</Typography>
+            <PageHeader
+                titulo="Kardex por Producto"
+                descripcion="Historial de movimientos de un producto específico"
+            />
 
-<TextField
-    select
-    label="Producto"
-    value={productoId}
-    onChange={(e) =>
-        setProductoId(
-            e.target.value
-        )
-    }
-    fullWidth
-    margin="normal"
->
+            <Paper sx={{ p: 2.5, maxWidth: 480, mb: 3 }}>
 
-    <MenuItem value="">
-        Seleccione
-    </MenuItem>
+                <TextField
+                    select
+                    label="Producto"
+                    value={productoId}
+                    onChange={(e) =>
+                        setProductoId(
+                            e.target.value
+                        )
+                    }
+                    fullWidth
+                >
 
-    {productos.map(producto => (
+                    <MenuItem value="">
+                        Seleccione
+                    </MenuItem>
 
-        <MenuItem
-            key={producto.id_producto}
-            value={producto.id_producto}
-        >
-            {producto.nombre}
-        </MenuItem>
+                    {productos.map(producto => (
 
-    ))}
+                        <MenuItem
+                            key={producto.id_producto}
+                            value={producto.id_producto}
+                        >
+                            {producto.nombre}
+                        </MenuItem>
 
-</TextField>
+                    ))}
+
+                </TextField>
+
+            </Paper>
 
 {kardex && (
 
     <>
-        <Typography
-            variant="h6"
-            sx={{ mt: 3 }}
-        >
-            Producto: {kardex.producto}
-        </Typography>
+        <Paper sx={{ p: 2.5, mb: 3 }}>
 
-        <Typography>
-            Stock actual:
-            {" "}
-            {kardex.stock_actual}
-        </Typography>
+            <Box
+                sx={{
+                    display: "flex",
+                    alignItems: "baseline",
+                    gap: 1.5,
+                    flexWrap: "wrap"
+                }}
+            >
 
-        <Paper sx={{ mt: 3 }}>
+                <Typography
+                    variant="h6"
+                    sx={{ fontWeight: 700 }}
+                >
+                    {kardex.producto}
+                </Typography>
+
+                <Typography color="text.secondary">
+                    · Stock actual:
+                </Typography>
+
+                <Typography
+                    variant="h6"
+                    color="primary.main"
+                    sx={{ fontWeight: 700 }}
+                >
+                    {kardex.stock_actual}
+                </Typography>
+
+            </Box>
+
+        </Paper>
+
+        <Paper sx={{ p: 2.5 }}>
 
     <Table>
 
@@ -183,6 +207,21 @@ async () => {
         </TableHead>
 
         <TableBody>
+
+            {kardex.movimientos.length === 0 && (
+
+                <TableRow>
+                    <TableCell colSpan={4}>
+                        <Typography
+                            color="text.secondary"
+                            sx={{ py: 2 }}
+                        >
+                            Este producto todavía no
+                            tiene movimientos.
+                        </Typography>
+                    </TableCell>
+                </TableRow>
+            )}
 
             {kardex.movimientos.map(
                 (movimiento) => (

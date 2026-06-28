@@ -10,8 +10,12 @@ import {
     DialogContent,
     DialogActions,
     TextField,
-    Button
+    Button,
+    Divider
 } from "@mui/material";
+
+import CloseRoundedIcon from "@mui/icons-material/CloseRounded";
+import SaveRoundedIcon from "@mui/icons-material/SaveRounded";
 
 import {
     crearProveedor,
@@ -163,13 +167,15 @@ function ModalProveedor({
             maxWidth="sm"
         >
 
-            <DialogTitle>
+            <DialogTitle sx={{ fontWeight: 700 }}>
 
                 {proveedorEditar
                     ? "Editar Proveedor"
                     : "Nuevo Proveedor"}
 
             </DialogTitle>
+
+            <Divider />
 
             <DialogContent>
 
@@ -211,16 +217,20 @@ function ModalProveedor({
 
             </DialogContent>
 
-            <DialogActions>
+            <Divider />
+
+            <DialogActions sx={{ p: 2 }}>
 
                 <Button
                     onClick={onClose}
+                    startIcon={<CloseRoundedIcon />}
                 >
                     Cancelar
                 </Button>
 
                 <Button
                     variant="contained"
+                    startIcon={<SaveRoundedIcon />}
                     onClick={guardarProveedor}
                 >
                     Guardar
